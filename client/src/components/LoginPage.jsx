@@ -1,44 +1,71 @@
 import React, { useState } from 'react'
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
+import { GoogleLogin } from "@react-oauth/google";
 
 const LoginPage = () => {
-  
-   const { axios ,setToken,navigate}=useAppContext();
 
-   const [state,setState]= useState("login");
-   const [name,setName]= useState("");
-   const [email,setEmail]=useState("");
-   const [password,setPassword]=useState("");
-   const [phoneNo, setPhoneNo]=useState("");
-   const [role,setRole]=useState('user')
+  const { axios, setToken, navigate } = useAppContext();
 
-  const onSubmitHandler =async (event)=>{
-    try{
-     event.preventDefault();
-     const checkState = state==="login"? {email,password}:role==="owner"?{name,email,password,role,phone_no:phoneNo}:{name,email,password,role}
-     const{data}=await axios.post(`/user/${state}` ,checkState)
-    
-     if(data.success){
-      navigate("/");
-      setToken(data.token)
-      localStorage.setItem('token',data.token)
-    
-     }
-     else{
-      toast.error(data.message)
-     }
+  const [state, setState] = useState("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [role, setRole] = useState('user')
+
+  const onSubmitHandler = async (event) => {
+    try {
+      event.preventDefault();
+      const checkState = state === "login" ? { email, password } : role === "owner" ? { name, email, password, role, phone_no: phoneNo } : { name, email, password, role }
+      const { data } = await axios.post(`/user/${state}`, checkState)
+
+      if (data.success) {
+        navigate("/");
+        setToken(data.token)
+        localStorage.setItem('token', data.token)
+
+      }
+      else {
+        toast.error(data.message)
+      }
     }
-    catch(error){
-        toast.error(error.message)
+    catch (error) {
+      toast.error(error.message)
     }
   }
+
+  //google handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const token = credentialResponse.credential;
+
+      const { data } = await axios.post(
+        "/user/google-login",
+        {
+          token,
+        }
+      );
+
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+
+        setToken(data.token);
+        toast.success("Google Login Success");
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div
       className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
-     >
-     
+    >
+
       <div
         className="relative bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-[90%] max-w-4xl overflow-hidden"
         onClick={(e) => e.stopPropagation()} // stop closing when clicking inside
@@ -56,69 +83,67 @@ const LoginPage = () => {
         {/* Right form section */}
         <div className="w-full flex flex-col items-center justify-center p-6">
           <form className="md:w-96 w-80 flex flex-col items-center justify-center"
-          onSubmit={onSubmitHandler} onClick={(e)=>e.stopPropagation()}>
+            onSubmit={onSubmitHandler} onClick={(e) => e.stopPropagation()}>
 
             <h2 className="text-4xl text-gray-900 font-medium">
-              {state==="login"? "  Sign in" : " Sign up"}
+              {state === "login" ? "  Sign in" : " Sign up"}
             </h2>
 
             <p className="text-sm text-gray-500/90 mt-3">
-              {state==="login" ? "Welcome back! Please sign in to continue" : "Create your account to get started"}
+              {state === "login" ? "Welcome back! Please sign in to continue" : "Create your account to get started"}
             </p>
 
-                {state === "register" && (
-                 <div className="mt-6 w-full flex gap-3">
+            {state === "register" && (
+              <div className="mt-6 w-full flex gap-3">
                 <button
-                 type="button"
-                 className={`w-1/2 h-11 rounded-full border transition ${
-                 role === "user"
-                ? "bg-indigo-500 text-white"
-                : "bg-white text-gray-600"
-                }`}
-               onClick={() => setRole("user")}>
-                User
-               </button>
+                  type="button"
+                  className={`w-1/2 h-11 rounded-full border transition ${role === "user"
+                      ? "bg-indigo-500 text-white"
+                      : "bg-white text-gray-600"
+                    }`}
+                  onClick={() => setRole("user")}>
+                  User
+                </button>
 
-                    <button
-                 type="button"
-                 className={`w-1/2 h-11 rounded-full border transition ${
-                  role === "owner"
-            ? "bg-indigo-500 text-white"
-            : "bg-white text-gray-600"
-      }`}
-      onClick={() => setRole("owner")}
-    >
-      Owner
-    </button>
-  </div>) }
-              
-              {state==="register" && (
-             <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-              <path
-                d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z"
-                fill="#6B7280"
-               />
-              <path
-               d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6"
-               fill="#6B7280"
-              />
-              </svg>
-              <input
-                onChange={(e)=>setName(e.target.value)}
-                value={name}
-                type="text"
-                placeholder="Name"
-                className="bg-transparent outline-none text-sm w-full h-full"
-                required
-              />
-            </div>)}
+                <button
+                  type="button"
+                  className={`w-1/2 h-11 rounded-full border transition ${role === "owner"
+                      ? "bg-indigo-500 text-white"
+                      : "bg-white text-gray-600"
+                    }`}
+                  onClick={() => setRole("owner")}
+                >
+                  Owner
+                </button>
+              </div>)}
+
+            {state === "register" && (
+              <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z"
+                    fill="#6B7280"
+                  />
+                  <path
+                    d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6"
+                    fill="#6B7280"
+                  />
+                </svg>
+                <input
+                  onChange={(e) => setName(e.target.value)}
+                  value={name}
+                  type="text"
+                  placeholder="Name"
+                  className="bg-transparent outline-none text-sm w-full h-full"
+                  required
+                />
+              </div>)}
 
             {/* Email input */}
             <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
@@ -137,7 +162,7 @@ const LoginPage = () => {
                 />
               </svg>
               <input
-                onChange={(e)=>setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 value={email}
                 type="email"
                 placeholder="Email id"
@@ -146,7 +171,7 @@ const LoginPage = () => {
               />
             </div>
 
-          
+
             <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
               <svg
                 width="13"
@@ -161,7 +186,7 @@ const LoginPage = () => {
                 />
               </svg>
               <input
-                onChange={(e)=>setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 value={password}
                 type="password"
                 placeholder="Password"
@@ -169,60 +194,73 @@ const LoginPage = () => {
                 required
               />
             </div>
-             {/*Phone No*/}
-             {state==="register" && role==='owner' && (
-            <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                 d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.3 21 3 13.7 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"
-                fill="#6B7280"
-               />
-              </svg>
-              <input
-                onChange={(e)=>setPhoneNo(e.target.value)}
-                value={phoneNo}
-                type="tel"
-                placeholder="Phone No."
-                className="bg-transparent outline-none text-sm w-full h-full"
-                required
-              />
-            </div>)}
-          
+            {/*Phone No*/}
+            {state === "register" && role === 'owner' && (
+              <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.3 21 3 13.7 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"
+                    fill="#6B7280"
+                  />
+                </svg>
+                <input
+                  onChange={(e) => setPhoneNo(e.target.value)}
+                  value={phoneNo}
+                  type="tel"
+                  placeholder="Phone No."
+                  className="bg-transparent outline-none text-sm w-full h-full"
+                  required
+                />
+              </div>)}
+
             <button
               type="submit"
-              className="mt-8 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity" 
+              className="mt-8 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity"
             >
-             {state==="login" ? "Login" : "Sign up"}
+              {state === "login" ? "Login" : "Sign up"}
             </button>
 
-          {state==="login" ? (<p className="text-gray-500/90 text-sm mt-4">
+           <div className="w-full mt-5 flex justify-center px-9">
+  <div className="w-full max-w-sm transition-transform duration-300 hover:scale-[1.02]">
+    <GoogleLogin
+      onSuccess={handleGoogleSuccess}
+      onError={() => toast.error("Google Login Failed")}
+      // Native Styling Props
+      theme="outline"
+      size="large"
+      shape="pill"
+      width="320px" // Set a fixed width or use a container ref
+      logo_alignment="left"
+    />
+  </div>
+</div>
+            {state === "login" ? (<p className="text-gray-500/90 text-sm mt-4">
               Don’t have an account?
-              <span className="text-indigo-400 hover:underline"  onClick={()=>setState("register")} >
+              <span className="text-indigo-400 hover:underline" onClick={() => setState("register")} >
                 Sign up
-               
               </span>
-            </p>):
-            (
-              <p className="text-gray-500/90 text-sm mt-4">
-             Already have an account?
-              <span className="text-indigo-400 hover:underline"  onClick={()=>setState("login")} >
-               Login
-               
-              </span>
-            </p>
-            )}
-            
+            </p>) :
+              (
+                <p className="text-gray-500/90 text-sm mt-4">
+                  Already have an account?
+                  <span className="text-indigo-400 hover:underline" onClick={() => setState("login")} >
+                    Login
+                  </span>
+
+                </p>
+              )}
+
           </form>
         </div>
-        </div>
       </div>
-    
+    </div>
+
   )
 }
 

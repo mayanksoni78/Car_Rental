@@ -40,7 +40,14 @@ export const addcar= async(req,res)=>{
         });
 
         const image =optimizedImageUrl;
-        await Car.create({...car,owner:_id,image})
+        const userdata=await Usermodel.findById(_id);
+        if (!userdata || !userdata.phone_no) {
+      return res.status(400).json({
+        success: false,
+        message: "Please add phone number before listing a car",
+      });
+    }
+        await Car.create({...car,owner:_id,ownerName:userdata.name, phone_no:userdata.phone_no ,image})
         res.json({message:"Car Added",success:true})
     }
     catch(error){

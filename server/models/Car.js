@@ -16,6 +16,8 @@ const CarSchema=new mongoose.Schema({
     location:{type: String,  required:true},
     description:{type: String,  required:true},
     isAvailable:{type:Boolean,  default:true},
+    ownerName:{type:String,  reqiured:true},
+    phone_no:{type: Number,  required:true},
 },{timestamps:true})
 
 const Car=mongoose.model('Car', CarSchema)

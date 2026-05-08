@@ -15,7 +15,7 @@ const Banner = () => {
          We take care of insurance, driver verification and secure payments —
          so you can earn passive income, stress-free.</p>
 
-        <button onClick={()=>(navigate("/my-bookings"))}className="mt-4 mb-4 w-full sm:w-auto px-5 py-2 bg-[#f6f9e3] text-[#2c5855] font-semibold rounded-3xl hover:bg-[#e7dbab] transition-all duration-300"> List Your Car</button>
+        <button onClick={()=>(navigate("/my-booking"))}className="mt-4 mb-4 w-full sm:w-auto px-5 py-2 bg-[#f6f9e3] text-[#2c5855] font-semibold rounded-3xl hover:bg-[#e7dbab] transition-all duration-300"> List Your Car</button>
       </div >
       <div className="mt-6 mb-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
         <img src="https://www.freeiconspng.com/uploads/audi-car-png-image-side-view-7.png" alt="Image" className="-56 sm:w-64 md:w-80 lg:w-[420px] bject-contain drop-shadow-xl hover:scale-105 transition-transform duration-500"

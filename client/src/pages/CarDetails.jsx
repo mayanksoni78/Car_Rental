@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 
 const Cardetails = () => {
 
-  const {currency,cars,axios,pickupDate, setPickupDate, returnDate, setReturnDate,navigate,user}=useAppContext()
+  const {currency,cars,axios,pickupDate, setPickupDate, returnDate, setReturnDate,navigate}=useAppContext()
 
   const{id}=useParams()
   
@@ -100,10 +100,10 @@ return car? (
                   Owner Details
                 </h2>
                 <div className="space-y-1">
-                  <p className="text-sm text-gray-800 font-semibold">{user.name}</p>
+                  <p className="text-sm text-gray-800 font-semibold">{car.ownerName}</p>
                   <p className="text-sm text-gray-600 flex items-center gap-2">
                     <i className="fa-solid fa-phone text-teal-600"></i>
-                    {user.phone_no}
+                    {car.phone_no}
                   </p>
                 </div>
               </div>

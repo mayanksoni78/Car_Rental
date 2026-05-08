@@ -4,7 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 const AddCar = () => {
 
-  const{axios, currency}=useAppContext();
+  const{axios, currency,user}=useAppContext();
 
   const[image,setImage]=useState(null)
 
