@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import Car from '../models/Car.js';
 import { OAuth2Client } from "google-auth-library";
+import razorpay from "../config/razorpay.js";
 
 const generateToken = (userId)=>{
     const payload=userId;
@@ -60,6 +61,7 @@ export const loginuser =async (req,res)=>{
        return res.json({message:"Server Error !", success:false})
     }
 }
+//google login 
 export const googleLogin =async(req,res)=>{
     try{
         const {token} =req.body;
@@ -103,7 +105,7 @@ export const googleLogin =async(req,res)=>{
         name,
         email,
         password: hashedPassword,
-        role: "user",
+        role,
         image: picture || "",
       });
     }
@@ -153,3 +155,22 @@ export const getCars =async(req,res)=>{
         res.json({success:false, message:error.message})
     }
 }
+
+// rajorpay order creation
+export const createOrder =async(req,res)=>{
+    try{
+      const {amount}=req.body;
+      const options={
+        amount: amount*100, 
+        currency:"INR",
+        receipt: `receipt_${Date.now()}`,
+      }   
+      const order= await razorpay.orders.create(options);
+      res.json({success:true, order})
+    } 
+    catch(error){
+        console.log(error.message);
+        res.json({success:false, message:error.message})
+    } 
+}
+  

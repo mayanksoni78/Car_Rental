@@ -4,8 +4,8 @@ import {useAppContext} from '../context/AppContext'
 import { useSearchParams } from 'react-router-dom'
 import Title from '../components/Title'
 import CarCard from '../components/CarCards'
-const Car = () => {
 
+const Car = () => {
 // getting search parameters from url
   const[searchParams]=useSearchParams();
   

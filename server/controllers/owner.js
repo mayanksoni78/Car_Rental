@@ -55,8 +55,8 @@ export const addcar= async(req,res)=>{
         return res.json({message:error.message, success:false})
     }
 }
-//api to get data
 
+//api to get data
 export const getOwnerCars =async(req,res)=>{
 try{
  const {_id}=req.user;
@@ -88,6 +88,7 @@ try{
         return res.json({message:error.message, success:false})
     }
 }
+
 //api to delete the car
 export const deleteCar =async(req,res)=>{
 try{
@@ -98,7 +99,6 @@ try{
  if(car.owner.toString()!==_id.toString()){
     return res.json({success:false, message:"Unauthorized"});
  }
-
  car.owner=null;
  Car.isAvailable=false;
  await car.save();
@@ -136,7 +136,6 @@ const dashboardData ={
 }
 res.json({success:true, dashboardData});
 }
-
  catch(error){
         console.log(error.message);
         return res.status(404).json({message:error.message, success:false})
