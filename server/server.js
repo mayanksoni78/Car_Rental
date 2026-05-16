@@ -16,7 +16,7 @@ const PORT=process.env.PORT||2005;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://car-rental-8ktp.onrender.com"
+    "https://car-rental-1-o1vd.onrender.com"
   ],
   credentials: true
 }));
