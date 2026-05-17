@@ -17,7 +17,7 @@ const PORT=process.env.PORT||2005;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://car-rental-1-o1vd.onrender.com"
+    "https://car-rental-mu-ashy.vercel.app"
   ],
   credentials: true
 }));
