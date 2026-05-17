@@ -1,6 +1,7 @@
 import Booking from "../models/Booking.js"
 import Car from "../models/Car.js";
 import transporter from "../config/nodemailer.js";
+import razorpay from "../config/razorpay.js";
 
 const checkAvailability = async (car, pickupDate, returnDate) => {
     const bookings = await Booking.find({
@@ -193,3 +194,41 @@ export const getCarBooking = async (req, res) => {
     }
 }
 
+
+// rajorpay order creation
+export const createOrder = async (req, res) => {
+  try {
+
+    const { amount } = req.body;
+
+    if (!amount) {
+      return res.json({
+        success: false,
+        message: "Amount is required"
+      });
+    }
+
+    const options = {
+      amount: Number(amount) * 100,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      success: true,
+      order
+    });
+
+  } catch (error) {
+
+    console.log("RAZORPAY ERROR:", error.message);
+
+    res.json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+  

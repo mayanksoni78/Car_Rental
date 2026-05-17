@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import Car from '../models/Car.js';
 import { OAuth2Client } from "google-auth-library";
-import razorpay from "../config/razorpay.js";
+
 
 const generateToken = (userId)=>{
     const payload=userId;
@@ -156,21 +156,3 @@ export const getCars =async(req,res)=>{
     }
 }
 
-// rajorpay order creation
-export const createOrder =async(req,res)=>{
-    try{
-      const {amount}=req.body;
-      const options={
-        amount: amount*100, 
-        currency:"INR",
-        receipt: `receipt_${Date.now()}`,
-      }   
-      const order= await razorpay.orders.create(options);
-      res.json({success:true, order})
-    } 
-    catch(error){
-        console.log(error.message);
-        res.json({success:false, message:error.message})
-    } 
-}
-  

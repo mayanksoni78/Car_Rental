@@ -27,19 +27,18 @@ const Cardetails = () => {
             const end = new Date(booking.returnDate);
 
             while (start <= end) {
-               dates.push(
-    new Date(
-      start.getFullYear(),
-      start.getMonth(),
-      start.getDate()
-    )
-  );
+              dates.push(
+                new Date(
+                  start.getFullYear(),
+                  start.getMonth(),
+                  start.getDate()
+                )
+              );
 
-  start.setDate(start.getDate() + 1);
+              start.setDate(start.getDate() + 1);
             }
           });
           setBookedDates(dates);
-          //
         }
       }
       catch (error) {
@@ -62,25 +61,110 @@ const Cardetails = () => {
     }
 
     try {
-      const { data } = await axios.post('bookings/create', { car: id, pickupDate, returnDate })
+      const start = new Date(pickupDate);
+      const end = new Date(returnDate);
 
-      if (data.success) {
-        toast.success(data.message)
-        navigate('/my-booking')
+      const totalDays =
+        Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+      const totalAmount = totalDays * car.pricePerDay;
+
+      // create razorpay order
+      const { data } = await axios.post(
+        "/bookings/payment",
+        {
+          amount: totalAmount
+        }
+      );
+
+      if (!data.success) {
+        toast.error(data.message);
+        return;
       }
-      else {
-        toast.error(data.message)
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: "Car Rental",
+        description: "Car Booking Payment",
+        order_id: data.order.id,
+
+        handler: async function (response) {
+
+          const bookingRes = await axios.post(
+            "/bookings/create",
+            {
+              car: id,
+              pickupDate,
+              returnDate,
+              paymentId: response.razorpay_payment_id
+            }
+          );
+
+          if (bookingRes.data.success) {
+            toast.success("Payment Successful");
+            navigate("/my-booking");
+          } else {
+            toast.error(bookingRes.data.message);
+          }
+        },
+
+        theme: {
+          color: "#2563eb"
+        }
+      };
+
+      const razor = new window.Razorpay(options);
+
+      razor.open();
+
+    } catch (error) {
+      toast.error(error.message);
+    } // <-- Fixed missing closing brace for catch block
+  }; // <-- Fixed missing closing brace for handleSubmit function
+
+  // NEW: Pay Later Function
+  const handlePayLater = async (e) => {
+    e.preventDefault();
+    if (pickupDate === returnDate) {
+      toast.error("Pickup date and return date cannot be the same");
+      return;
+    }
+
+    if (new Date(returnDate) < new Date(pickupDate)) {
+      toast.error("Return date must be after pickup date");
+      return;
+    }
+
+    try {
+      // Directly call create booking endpoint with a "Pay Later" indicator
+      const bookingRes = await axios.post(
+        "/bookings/create",
+        {
+          car: id,
+          pickupDate,
+          returnDate,
+          paymentId: "PAY_LATER" // Custom string your backend can look for
+        }
+      );
+
+      if (bookingRes.data.success) {
+        toast.success("Booking Successful! Pay at pickup.");
+        navigate("/my-booking");
+      } else {
+        toast.error(bookingRes.data.message);
       }
+    } catch (error) {
+      toast.error(error.message);
     }
-    catch (error) {
-      toast.error(error.message)
-    }
-  }
+  };
+
 
   useEffect(() => {
     setCar(cars.find(car => car._id === id))
   }, [cars, id])
-
 
 
   return car ? (
@@ -211,9 +295,18 @@ const Cardetails = () => {
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
             />
           </div>
-          <button type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base font-medium">Book Now</button>
-          <p className="text-[10px] sm:text-xs text-gray-500 text-center"> No credit card required to reserve</p>
+          
+          <div className="flex flex-col gap-3 pt-2">
+            <button type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base font-medium">
+              Pay Now
+            </button>
+            <button type="button" onClick={handlePayLater}
+              className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition text-sm sm:text-base font-medium">
+              Pay Later
+            </button>
+          </div>
+          <p className="text-[10px] sm:text-xs text-gray-500 text-center"> No credit card required to reserve (Pay Later)</p>
         </form>
       </div>
 

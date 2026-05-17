@@ -38,7 +38,7 @@ const ManageBooking = () => {
   }
   const deleteBooking= async(bookingId)=>{
     try{
-      const{data}=await axios.post('bookings/delete-booking',{bookingId});
+      const{data}=await axios.post('/bookings/delete-booking',{bookingId});
         if(data.success){
           toast.success(data.message)
           setBooking((prev)=>
