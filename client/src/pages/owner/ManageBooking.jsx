@@ -22,6 +22,12 @@ const ManageBooking = () => {
 
     const changeBookingStatus= async(bookingId,status)=>{
     try{
+       setBooking((prev) =>
+      prev.map((b) =>
+        b._id === bookingId ? { ...b, status } : b
+      )
+    );
+
         const {data}=await axios.post('/bookings/change-status',{bookingId,status})
         if(data.success){
           toast.success(data.message)
@@ -29,11 +35,13 @@ const ManageBooking = () => {
         }
         else{
           toast.error(data.message);
+          fetchOwnerBooking();
         }
        
     }
     catch(error){
       toast.error(error.message);
+      fetchOwnerBooking();
     }
   }
   const deleteBooking= async(bookingId)=>{
@@ -105,7 +113,7 @@ const ManageBooking = () => {
                   </select>
                 ): (<>
                 <span className={`px-1 py-1 rounded text-[7px] sm:text-xs font-semibold ${booking.status==="confirmed"?"bg-green-200  text-green-700" : 'bg-red-200  text-red-700'}`}>{booking.status}</span>
-                <button onClick={()=>deleteBooking(booking._id)} ><i class="px-1.5 sm:px-5 fa-solid fa-trash text-[#0d4b50] hover:text-red-700 cursor-pointer transition text-[10px] sm:text-base" title="Delete Car"></i>
+                <button onClick={()=>deleteBooking(booking._id)} ><i className="px-1.5 sm:px-5 fa-solid fa-trash text-[#0d4b50] hover:text-red-700 cursor-pointer transition text-[10px] sm:text-base" title="Delete Car"></i>
                   </button>
                   </>
                 )}

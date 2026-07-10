@@ -1,60 +1,80 @@
-import React,{useState} from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
-const CarCards = ({car}) => {
-    const currency=import.meta.env.VITE_CURRENCY;
-    const navigate =useNavigate();
+const CarCards = ({ car }) => {
+  const currency = import.meta.env.VITE_CURRENCY || '$';
+  const navigate = useNavigate();
 
   return (
+    <div 
+      onClick={() => {
+        navigate(`/car-details/${car._id}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }} 
+      className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden h-full max-w-sm mx-auto cursor-pointer select-none"
+    >
+      <div className="relative w-full h-36 bg-gray-50 flex items-center justify-center p-3">
+        <img 
+          src={car.image} 
+          alt={`${car.brand} ${car.model}`} 
+          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
+        />
+        
+        {car.isAvailable && (
+          <span className="absolute top-2.5 left-2.5 text-[10px] uppercase tracking-wider text-white font-bold bg-gradient-to-r from-teal-600 to-teal-700 px-2 py-0.5 rounded-md shadow-sm">
+            Available Now
+          </span>
+        )}
+        
+        <span className="absolute top-2.5 right-2.5 text-[10px] uppercase tracking-wider text-white font-extrabold bg-teal-950/90 backdrop-blur-md px-2.5 py-0.5 rounded-md shadow-sm border border-teal-800/30">
+          {car.year}
+        </span>
+      </div>
 
- <div onClick={()=>{navigate(`/car-details/${car._id}`);scrollTo(0,0)}} className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-4 sm:p-6 cursor-pointer w-full max-w-sm sm:max-w-md md:max-w-lg border border-gray-100 hover:border-teal-200 hover:-translate-y-1">
+      <div className="p-4 flex flex-col flex-grow">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold text-gray-800 leading-snug tracking-tight group-hover:text-teal-700 transition-colors truncate">
+              {car.brand} {car.model}
+            </h3>
+            <p className="text-[11px] text-gray-400 font-medium tracking-wide">{car.number}</p>
+          </div>
+          <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 bg-teal-50 text-teal-800 rounded md flex-shrink-0 self-start">
+            {car.category}
+          </span>
+        </div>
 
-  <div className="flex items-start justify-between gap-2 sm:gap-3">
-   <img src={car.image} alt="Car-Image" 
-    className="w-24 h-16 sm:w-32 sm:h-22 object-cover rounded-xl shadow-sm "/>
-    {car.isAvailable && (
-        <p className="text-[10px] sm:text-xs text-white font-semibold bg-gradient-to-r from-teal-500 to-teal-600 px-3 py-1 rounded-full shadow-sm">Available Now</p>
-      )}
+        <div className="grid grid-cols-2 gap-2 my-3 text-xs text-gray-600">
+          <div className="flex items-center gap-1.5 bg-gray-50/80 p-2 rounded-xl border border-gray-100/50">
+            <i className="fa-solid fa-user-group text-teal-700 w-4 text-center text-xs"></i>
+            <span className="font-medium truncate text-[11px]">{car.seating_capacity} Seats</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-gray-50/80 p-2 rounded-xl border border-gray-100/50">
+            <i className="fa-solid fa-gas-pump text-teal-700 w-4 text-center text-xs"></i>
+            <span className="font-medium truncate text-[11px]">{car.fuel_type}</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-gray-50/80 p-2 rounded-xl border border-gray-100/50">
+            <i className="fa-solid fa-car-side text-teal-700 w-4 text-center text-xs"></i>
+            <span className="font-medium truncate text-[11px]">{car.transmission}</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-gray-50/80 p-2 rounded-xl border border-gray-100/50">
+            <i className="fa-solid fa-location-dot text-teal-700 w-4 text-center text-xs"></i>
+            <span className="font-medium truncate text-[11px]">{car.location}</span>
+          </div>
+        </div>
 
-   <div className="text-right">
-      <span className="text-lg sm:text-xl md:text-2xl font-bold text-teal-900">{currency}{car.pricePerDay}</span>
-      <span className="text-xs sm:text-sm text-gray-500 font-normal"> / day</span>
+        <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+          <div>
+            <span className="text-xl font-black text-teal-950 tracking-tight">{currency}{car.pricePerDay}</span>
+            <span className="text-[11px] text-gray-400 font-medium"> / day</span>
+          </div>
+          
+          <div className="h-8 w-8 rounded-lg bg-gray-50 group-hover:bg-teal-700 flex items-center justify-center text-teal-700 group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-teal-900/10">
+            <i className="fa-solid fa-arrow-right text-[10px] transition-transform group-hover:translate-x-0.5"></i>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-
-   <div className="mt-4 sm:mt-5">
-    <div>
-     <div>
-        <h3 className="text-base sm:text-xl font-bold text-gray-800 leading-tight">{car.brand} {car.model} 
-          <span className="ml-2 text-xs sm:text-sm text-gray-500 font-normal">({car.number})</span>
-        </h3>
-       
-        <p className="text-xs sm:text-sm text-teal-600 font-medium mt-1">{car.category} • {car.year}</p>
-     </div>
-   </div>
-
-   <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700 pt-4 border-t border-gray-100">
-     <div className="flex items-center gap-2">
-      <i className="fa-solid fa-user-group text-teal-600 text-sm sm:text-base"></i>
-      <span className="font-medium">{car.seating_capacity} Seats</span>
-    </div>
-
-   <div className="flex items-center gap-2">
-        <i className="fa-solid fa-gas-pump text-teal-600 text-sm sm:text-base"></i>
-    <span className="font-medium">{car.fuel_type}</span>
-   </div>
-<div className="flex items-center gap-2">
-        <i className="fa-solid fa-car-side text-teal-600 text-sm sm:text-base"></i>
-    <span className="font-medium">{car.transmission}</span>
-   </div>
-   <div className="flex items-center gap-2">
-        <i className="fa-solid fa-location-dot text-teal-600 text-sm sm:text-base"></i>
-     <span className="font-medium">{car.location}</span>
-   </div>
-   
-  </div>
- </div>
-</div>
   )
 }
 

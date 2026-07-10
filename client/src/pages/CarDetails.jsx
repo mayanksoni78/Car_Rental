@@ -5,12 +5,11 @@ import Loader from '../components/Loader'
 import toast from 'react-hot-toast'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { isSameDay } from "date-fns";
+import { isSameDay, format } from "date-fns";
 
 const Cardetails = () => {
 
   const { currency, cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, navigate } = useAppContext()
-
   const { id } = useParams()
 
   const [car, setCar] = useState(null)
@@ -25,16 +24,8 @@ const Cardetails = () => {
           data.bookings.forEach((booking) => {
             const start = new Date(booking.pickupDate);
             const end = new Date(booking.returnDate);
-
             while (start <= end) {
-              dates.push(
-                new Date(
-                  start.getFullYear(),
-                  start.getMonth(),
-                  start.getDate()
-                )
-              );
-
+              dates.push(new Date(start.getFullYear(), start.getMonth(), start.getDate()));
               start.setDate(start.getDate() + 1);
             }
           });
@@ -42,20 +33,28 @@ const Cardetails = () => {
         }
       }
       catch (error) {
-        console.log(error.message)
+        console.error("Error fetching booked dates:", error.message)
       }
     }
     fetchBookedDates()
-  }, [id]);
+  }, [id, axios]);
 
+  // --- PAY NOW HANDLER ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+   
+    if (!pickupDate || !returnDate) {
+      console.log("Validation Failed: Dates are empty");
+      toast.error("Please select both Pickup and Return dates");
+      return;
+    }
     if (pickupDate === returnDate) {
+      console.log("Validation Failed: Dates are same");
       toast.error("Pickup date and return date cannot be the same");
       return;
     }
-
     if (new Date(returnDate) < new Date(pickupDate)) {
+      console.log("Validation Failed: Return is before pickup");
       toast.error("Return date must be after pickup date");
       return;
     }
@@ -63,109 +62,138 @@ const Cardetails = () => {
     try {
       const start = new Date(pickupDate);
       const end = new Date(returnDate);
-
-      const totalDays =
-        Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-
+      const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
       const totalAmount = totalDays * car.pricePerDay;
 
       // create razorpay order
-      const { data } = await axios.post(
-        "/bookings/payment",
-        {
-          amount: totalAmount
-        }
-      );
+      const { data } = await axios.post("/bookings/payment", { amount: totalAmount });
+      
+      console.log("Response from /bookings/payment:", data);
 
-      if (!data.success) {
-        toast.error(data.message);
+      if (typeof data === 'string') {
+        console.error("CRITICAL ERROR: The backend returned HTML instead of JSON. Check your API route or Base URL configuration.");
+        toast.error("API Route Error. Check console.");
         return;
       }
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      if (!data.success) {
+        console.error("Backend returned success: false", data);
+        toast.error(data.message || "Payment initialization failed");
+        return;
+      }
 
+            // 👈 FIX: MUST HAVE VITE_ IN THE NAME!
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID; 
+      console.log("Razorpay Key from .env:", razorpayKey);
+
+      if (!razorpayKey) {
+        console.error("CRITICAL ERROR: Razorpay Key is undefined! Ensure it is in your .env file as VITE_RAZORPAY_KEY_ID and YOU RESTARTED THE SERVER.");
+        toast.error("Razorpay key is missing! Check console.");
+        return;
+      }
+
+      console.log("Setting up Razorpay options...");
+      const options = {
+        key: razorpayKey,
         amount: data.order.amount,
         currency: data.order.currency,
         name: "Car Rental",
         description: "Car Booking Payment",
         order_id: data.order.id,
 
-        handler: async function (response) {
+       handler: async function (response) {
 
-          const bookingRes = await axios.post(
+    try {
+
+        const bookingRes = await axios.post(
             "/bookings/create",
             {
-              car: id,
-              pickupDate,
-              returnDate,
-              paymentId: response.razorpay_payment_id
+                car: id,
+                pickupDate,
+                returnDate,
+                paymentId: response.razorpay_payment_id
             }
-          );
+        );
 
-          if (bookingRes.data.success) {
+        if (bookingRes.data.success) {
             toast.success("Payment Successful");
             navigate("/my-booking");
-          } else {
+        } else {
             toast.error(bookingRes.data.message);
-          }
-        },
+        }
 
+    } catch (error) {
+        toast.error(error.response?.data?.message || error.message);
+    }
+
+},
         theme: {
           color: "#2563eb"
         }
       };
 
+      console.log("Opening Razorpay window...");
       const razor = new window.Razorpay(options);
-
       razor.open();
 
     } catch (error) {
-      toast.error(error.message);
-    } // <-- Fixed missing closing brace for catch block
-  }; // <-- Fixed missing closing brace for handleSubmit function
+      console.error("Pay Now Caught Error:", error);
+      toast.error(error?.response?.data?.message || error.message || "An unknown error occurred");
+    } 
+  }; 
 
-  // NEW: Pay Later Function
+  
   const handlePayLater = async (e) => {
     e.preventDefault();
+    console.log("--- PAY LATER BUTTON CLICKED ---");
+    console.log("Pickup Date:", pickupDate);
+    console.log("Return Date:", returnDate);
+    
+    if (!pickupDate || !returnDate) {
+      toast.error("Please select both Pickup and Return dates");
+      return;
+    }
     if (pickupDate === returnDate) {
       toast.error("Pickup date and return date cannot be the same");
       return;
     }
-
     if (new Date(returnDate) < new Date(pickupDate)) {
       toast.error("Return date must be after pickup date");
       return;
     }
 
     try {
-      // Directly call create booking endpoint with a "Pay Later" indicator
-      const bookingRes = await axios.post(
-        "/bookings/create",
-        {
+      console.log("Sending request to /bookings/create with PAY_LATER...");
+      const bookingRes = await axios.post("/bookings/create", {
           car: id,
           pickupDate,
           returnDate,
-          paymentId: "PAY_LATER" // Custom string your backend can look for
-        }
-      );
+          paymentId: "PAY_LATER" 
+      });
+
+      console.log("Response from /bookings/create:", bookingRes.data);
+
+      if (typeof bookingRes.data === 'string') {
+        console.error("CRITICAL ERROR: The backend returned HTML instead of JSON. Check your API route or Base URL configuration.");
+        toast.error("API Route Error. Check console.");
+        return;
+      }
 
       if (bookingRes.data.success) {
         toast.success("Booking Successful! Pay at pickup.");
         navigate("/my-booking");
       } else {
-        toast.error(bookingRes.data.message);
+        toast.error(bookingRes.data.message || "Booking failed");
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Pay Later Caught Error:", error);
+      toast.error(error?.response?.data?.message || error.message || "An unknown error occurred");
     }
   };
-
 
   useEffect(() => {
     setCar(cars.find(car => car._id === id))
   }, [cars, id])
-
 
   return car ? (
     <div className="px-3 sm:px-6 md:px-10 py-4 sm:py-6 bg-[#efeedd] min-h-screen">
@@ -175,7 +203,6 @@ const Cardetails = () => {
       </button>
 
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
-
         <div className="flex-1 bg-white rounded-xl shadow-md p-3 sm:p-5 md:p-6">
           <img src={car.image} alt="car-image" className="w-full sm:w-72 md:w-80 h-44 sm:h-48 object-cover rounded-lg mb-4" />
           <div className="space-y-4">
@@ -260,9 +287,9 @@ const Cardetails = () => {
               <i className="fa-solid fa-calendar-check text-[#09413f]"></i>Pickup Date</label>
             <DatePicker
               selected={pickupDate ? new Date(pickupDate) : null}
-              onChange={(date) =>
-                setPickupDate(date.toISOString().split("T")[0])
-              }
+              onChange={(date) =>{
+                 if (date) setPickupDate(format(date, 'yyyy-MM-dd'));
+              }}
               filterDate={(date) =>
                 !bookedDates.some((bookedDate) =>
                   isSameDay(bookedDate, date)
@@ -282,9 +309,9 @@ const Cardetails = () => {
 
             <DatePicker
               selected={returnDate ? new Date(returnDate) : null}
-              onChange={(date) =>
-                setReturnDate(date.toISOString().split("T")[0])
-              }
+              onChange={(date) =>{
+                 if (date) setReturnDate(format(date, 'yyyy-MM-dd'));
+              }}
               filterDate={(date) =>
                 !bookedDates.some((bookedDate) =>
                   isSameDay(bookedDate, date)

@@ -1,11 +1,13 @@
 import Booking from "../models/Booking.js"
 import Car from "../models/Car.js";
 import transporter from "../config/nodemailer.js";
-import razorpay from "../config/razorpay.js";
+import razorpayInstance from "../config/razorpay.js";
+import nodemailer from "nodemailer"
 
 const checkAvailability = async (car, pickupDate, returnDate) => {
     const bookings = await Booking.find({
         car,
+        status: { $ne: "cancelled" },
         pickupDate: { $lte: returnDate },
         returnDate: { $gte: pickupDate },
     })
@@ -30,11 +32,10 @@ export const checkAvailabilityOfCar = async (req, res) => {
     }
 }
 
-//Api to create Booking
 export const createBooking = async (req, res) => {
     try {
         const { _id } = req.user;
-        const { car, pickupDate, returnDate } = req.body;
+        const { car, pickupDate, returnDate, paymentId } = req.body;
 
         const isAvailable = await checkAvailability(car, pickupDate, returnDate);
         if (!isAvailable) {
@@ -43,10 +44,29 @@ export const createBooking = async (req, res) => {
         const carData = await Car.findById(car);
         const picked = new Date(pickupDate);
         const returned = new Date(returnDate);
-        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
+
+        if (returned <= picked) {
+            return res.json({
+                success: false,
+                message: "Return date must be after pickup date"
+            });
+        }
+
+        const noOfDays = Math.ceil(
+            (returned - picked) / (1000 * 60 * 60 * 24)
+        );
         const price = carData.pricePerDay * noOfDays
 
-        await Booking.create({ car, owner: carData.owner, user: _id, pickupDate, returnDate, price })
+        await Booking.create({
+            car,
+            owner: carData.owner,
+            user: _id,
+            pickupDate,
+            returnDate,
+            price,
+            paymentId,
+            paymentStatus: paymentId === "PAY_LATER" ? "pending" : "paid"
+        })
 
         await sendemail(
             req.user.email,
@@ -62,12 +82,17 @@ export const createBooking = async (req, res) => {
         );
         res.json({ success: true, message: "Booking Created" })
     }
-    catch (error) {
-        res.json({ message: error.message, success: false })
-    }
-}
 
-//Api to list user Booking 
+    catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+
+}
 
 export const getUserBooking = async (req, res) => {
     try {
@@ -79,8 +104,6 @@ export const getUserBooking = async (req, res) => {
         res.json({ message: error.message, success: false })
     }
 }
-
-//api to get owner booking 
 
 export const getOwnerBooking = async (req, res) => {
     try {
@@ -96,15 +119,14 @@ export const getOwnerBooking = async (req, res) => {
     }
 }
 
-// Api to change the booking status
 export const changeBookingStatus = async (req, res) => {
     try {
         const { _id } = req.user;
-        const { bookingId, status} = req.body;
+        const { bookingId, status } = req.body;
 
         const booking = await Booking.findById(bookingId).populate('car').populate('user');
 
-        if(!booking){
+        if (!booking) {
             return res.json({ success: false, message: "Booking not found" })
         }
 
@@ -113,7 +135,7 @@ export const changeBookingStatus = async (req, res) => {
         }
         booking.status = status;
         await booking.save();
-        if(status==="confirmed"){
+        if (status === "confirmed") {
             await sendemail(
                 booking.user.email,
                 "Booking Confirmed 🚗",
@@ -127,7 +149,7 @@ export const changeBookingStatus = async (req, res) => {
                 `
             );
         }
-        if(status==="cancelled"){
+        if (status === "cancelled") {
             await sendemail(
                 booking.user.email,
                 "Booking Cancelled 🚗",
@@ -167,7 +189,6 @@ export const deleteBooking = async (req, res) => {
     }
 }
 
-// sending emails
 export const sendemail = async (to, subject, html) => {
     try {
         await transporter.sendMail({
@@ -183,29 +204,26 @@ export const sendemail = async (to, subject, html) => {
     }
 }
 
-//Car Booking for owner
 export const getCarBooking = async (req, res) => {
     try {
-        const bookings = await Booking.find({ car: req.params.id }).populate('user', '-password').sort({ createdAt: -1 })
+
+        const bookings = await Booking.find({
+            car: req.params.id,
+            status: { $ne: "cancelled" }
+        }).populate('user', '-password').sort({ createdAt: -1 })
         res.json({ success: true, bookings })
     }
     catch (error) {
         res.json({ message: error.message, success: false })
     }
 }
-
-
-// rajorpay order creation
 export const createOrder = async (req, res) => {
+  console.log("------ 🚀 CREATE ORDER API HIT 🚀 ------");
   try {
-
     const { amount } = req.body;
-
+    
     if (!amount) {
-      return res.json({
-        success: false,
-        message: "Amount is required"
-      });
+      return res.json({ success: false, message: "Amount is required" });
     }
 
     const options = {
@@ -214,21 +232,22 @@ export const createOrder = async (req, res) => {
       receipt: `receipt_${Date.now()}`
     };
 
-    const order = await razorpay.orders.create(options);
-
-    res.json({
-      success: true,
-      order
-    });
+    console.log("Calling Razorpay API to create order...");
+    
+    // We use your already-configured instance from your config file here!
+    const order = await razorpayInstance.orders.create(options);
+    
+    console.log("✅ Order created successfully:", order.id);
+    res.json({ success: true, order });
 
   } catch (error) {
-
-    console.log("RAZORPAY ERROR:", error.message);
-
-    res.json({
-      success: false,
-      message: error.message
-    });
+    console.log("----- 🚨 RAZORPAY CRASHED 🚨 -----");
+    console.log("Raw Error Object:", error);
+    
+    // Guaranteed to catch Razorpay's hidden error messages
+    const errorMsg = error?.error?.description || error.message || "Razorpay API Failed";
+    console.log("Sending Error to Frontend:", errorMsg);
+    
+    res.json({ success: false, message: errorMsg });
   }
 };
-  

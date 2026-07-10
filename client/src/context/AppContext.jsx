@@ -4,8 +4,7 @@ import {toast} from 'react-hot-toast'
 import { useNavigate } from "react-router-dom";
 import { useState,useEffect  } from "react";
 
-
-axios.defaults.baseURL=import.meta.env.VITE_BASE_URL
+axios.defaults.baseURL = "http://localhost:2005"; 
 
 export const AppContext=createContext();
 
@@ -80,7 +79,6 @@ export const AppProvider=({children})=>{
     fetchCars()
   },[])
 
-  //useEffect to fetch user data when token is available 
   useEffect(()=>{
          if(token){
             axios.defaults.headers.common['Authorization']= ` ${token}`

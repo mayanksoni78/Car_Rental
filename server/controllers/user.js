@@ -14,7 +14,6 @@ const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID
 );
 
-// registration
 export const registeruser= async (req, res)=>{
 
     try{
