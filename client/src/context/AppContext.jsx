@@ -4,7 +4,7 @@ import {toast} from 'react-hot-toast'
 import { useNavigate } from "react-router-dom";
 import { useState,useEffect  } from "react";
 
-axios.defaults.baseURL = "http://localhost:2005"; 
+axios.defaults.baseURL =import.meta.env.VITE_BASE_URL || "http://localhost:2005";
 
 export const AppContext=createContext();
 
