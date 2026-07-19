@@ -38,7 +38,7 @@ mongoose
   })
   .catch((error) => {
     console.error("MONGO CONNECTION FAILED");
-    console.error("REASON:", error.message);
+    console.log(error);
   });
 
 app.listen(PORT,()=>console.log(`Server Running on PORT ${PORT}`))

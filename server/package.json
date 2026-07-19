@@ -23,7 +23,8 @@
     "imagekit": "^6.0.0",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^9.3.0",
+    "mongodb": "^7.5.0",
+    "mongoose": "^8.24.1",
     "multer": "^2.0.2",
     "nodemailer": "^8.0.7",
     "razorpay": "^2.9.6"
