@@ -18,7 +18,7 @@ import logger from "./config/logger.js";
 app.use(cors({
   origin: [
     "https://car-rental-mu-ashy.vercel.app",
-    "http://localhost:5174",
+    "http://localhost:5173",
   ],
   credentials: true
 }));
