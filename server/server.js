@@ -13,17 +13,33 @@ dotenv.config();
 
 const PORT=process.env.PORT||2005;  
 
+import logger from "./config/logger.js";
 
 app.use(cors({
   origin: [
     "https://car-rental-mu-ashy.vercel.app",
-    "http://localhost:5173",
+    "http://localhost:5174",
   ],
   credentials: true
 }));
 
-
 app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    logger.info("http.request", {
+      method: req.method,
+      route: req.originalUrl,
+      status: res.statusCode,
+      durationMs: duration
+    });
+  });
+  next();
+});
+
 app.use('/user', userrouter);
 app.use('/owner',ownerrouter)
 app.use('/bookings',bookingrouter)
@@ -34,12 +50,13 @@ mongoose
     serverSelectionTimeoutMS: 5000, 
   })
   .then(() => {
-    console.log(" MONGO CONNECTED");
+    logger.info("database.connected");
   })
   .catch((error) => {
-    console.error("MONGO CONNECTION FAILED");
-    console.log(error);
+    logger.error("database.connection_failed", {
+      error: error.message
+    });
   });
 
-app.listen(PORT,()=>console.log(`Server Running on PORT ${PORT}`))
+app.listen(PORT,()=>logger.info("server.started", { port: PORT }))
 app.get('/',(req,res)=>res.send("Server is Running"))

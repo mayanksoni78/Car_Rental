@@ -3,15 +3,17 @@ import Booking from "../models/Booking.js";
 import Usermodel from "../models/user.js";
 import Car from "../models/Car.js"
 import fs from "fs"
+import logger from "../config/logger.js"
 
 export const changeRoleToOwner =async (req, res)=>{
     try{
         const {_id}=req.user;
         await Usermodel.findByIdAndUpdate(_id,{role:"owner"})
+        logger.info("user.role_changed", { userId: _id, role: "owner" });
         res.json({success:true,message:"Now you can list your cars"})
     }
     catch(error){
-        console.log(error.message);
+        logger.error("user.role_change_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }
@@ -47,11 +49,12 @@ export const addcar= async(req,res)=>{
         message: "Please add phone number before listing a car",
       });
     }
-        await Car.create({...car,owner:_id,ownerName:userdata.name, phone_no:userdata.phone_no ,image})
+        const createdCar = await Car.create({...car,owner:_id,ownerName:userdata.name, phone_no:userdata.phone_no ,image})
+        logger.info("car.added", { carId: createdCar._id, ownerId: _id });
         res.json({message:"Car Added",success:true})
     }
     catch(error){
-        console.log(error.message);
+        logger.error("car.add_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }
@@ -64,7 +67,7 @@ try{
  res.json({success:true,cars})
 }
  catch(error){
-        console.log(error.message);
+        logger.error("owner.fetch_cars_failed", { error: error.message });
         return res.status(404).json({message:error.message, success:false})
     }
 }
@@ -81,10 +84,11 @@ try{
  }
  car.isAvailable=!car.isAvailable;
  await car.save();
+ logger.info("car.availability_toggled", { carId, isAvailable: car.isAvailable });
  res.json({success:true,message:"Availability Toggled"})
 }
  catch(error){
-        console.log(error.message);
+        logger.error("car.toggle_availability_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }
@@ -100,12 +104,13 @@ try{
     return res.json({success:false, message:"Unauthorized"});
  }
  car.owner=null;
- Car.isAvailable=false;
+ car.isAvailable=false;
  await car.save();
+ logger.info("car.deleted", { carId });
  res.json({success:true,message:"Car Removed"})
 }
  catch(error){
-        console.log(error.message);
+        logger.error("car.deletion_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }
@@ -137,7 +142,7 @@ const dashboardData ={
 res.json({success:true, dashboardData});
 }
  catch(error){
-        console.log(error.message);
+        logger.error("owner.dashboard_fetch_failed", { error: error.message });
         return res.status(404).json({message:error.message, success:false})
     }
 }
@@ -166,10 +171,11 @@ try{
         });
         const image =optimizedImageUrl;
         await Usermodel.findByIdAndUpdate(_id,{image});
+        logger.info("user.image_updated", { userId: _id });
         res.json({message:"Image Updated",success:true})
 }
  catch(error){
-        console.log(error.message);
+        logger.error("user.image_update_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }

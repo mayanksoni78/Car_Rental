@@ -3,6 +3,7 @@ import Car from "../models/Car.js";
 import transporter from "../config/nodemailer.js";
 import razorpayInstance from "../config/razorpay.js";
 import nodemailer from "nodemailer"
+import logger from "../config/logger.js"
 
 const checkAvailability = async (car, pickupDate, returnDate) => {
     const bookings = await Booking.find({
@@ -57,7 +58,7 @@ export const createBooking = async (req, res) => {
         );
         const price = carData.pricePerDay * noOfDays
 
-        await Booking.create({
+        const booking = await Booking.create({
             car,
             owner: carData.owner,
             user: _id,
@@ -67,6 +68,12 @@ export const createBooking = async (req, res) => {
             paymentId,
             paymentStatus: paymentId === "PAY_LATER" ? "pending" : "paid"
         })
+
+        logger.info("booking.created", {
+            bookingId: booking._id,
+            carId: car,
+            userId: _id
+        });
 
         await sendemail(
             req.user.email,
@@ -84,7 +91,9 @@ export const createBooking = async (req, res) => {
     }
 
     catch (error) {
-        console.log(error);
+        logger.error("booking.creation_failed", {
+            error: error.message
+        });
 
         res.status(500).json({
             success: false,
@@ -135,6 +144,12 @@ export const changeBookingStatus = async (req, res) => {
         }
         booking.status = status;
         await booking.save();
+
+        logger.info(`booking.status_changed`, {
+            bookingId,
+            status
+        });
+
         if (status === "confirmed") {
             await sendemail(
                 booking.user.email,
@@ -182,6 +197,7 @@ export const deleteBooking = async (req, res) => {
             return res.json({ success: false, message: "Unauthorized" });
         }
         await Booking.findByIdAndDelete(bookingId);
+        logger.info("booking.deleted", { bookingId });
         res.json({ success: true, message: "Booking Deleted" })
     }
     catch (error) {
@@ -197,10 +213,10 @@ export const sendemail = async (to, subject, html) => {
             subject,
             html
         })
-        console.log("Email Sent")
+        logger.info("email.sent", { to, subject });
     }
     catch (error) {
-        console.log(error.message);
+        logger.error("email.failed", { error: error.message, to, subject });
     }
 }
 
@@ -218,7 +234,6 @@ export const getCarBooking = async (req, res) => {
     }
 }
 export const createOrder = async (req, res) => {
-  console.log("------ 🚀 CREATE ORDER API HIT 🚀 ------");
   try {
     const { amount } = req.body;
     
@@ -232,21 +247,17 @@ export const createOrder = async (req, res) => {
       receipt: `receipt_${Date.now()}`
     };
 
-    console.log("Calling Razorpay API to create order...");
+    logger.info("payment.order_creation_started", { amount });
     
     // We use your already-configured instance from your config file here!
     const order = await razorpayInstance.orders.create(options);
     
-    console.log("✅ Order created successfully:", order.id);
+    logger.info("payment.order_created", { orderId: order.id });
     res.json({ success: true, order });
 
   } catch (error) {
-    console.log("----- 🚨 RAZORPAY CRASHED 🚨 -----");
-    console.log("Raw Error Object:", error);
-    
-    // Guaranteed to catch Razorpay's hidden error messages
     const errorMsg = error?.error?.description || error.message || "Razorpay API Failed";
-    console.log("Sending Error to Frontend:", errorMsg);
+    logger.error("payment.failed", { error: errorMsg });
     
     res.json({ success: false, message: errorMsg });
   }

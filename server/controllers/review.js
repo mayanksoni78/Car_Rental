@@ -2,6 +2,7 @@ import Review from "../models/Review.js"
 import Car from "../models/Car.js"; 
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import logger from "../config/logger.js"
 
 export const addReview=async(req,res)=>{
     try{
@@ -47,10 +48,11 @@ export const deleteReview =async (req,res)=>{
  }
 
           await Review.deleteOne({_id: reviewId});
+          logger.info("review.deleted", { reviewId });
           res.json({success:true,message:"Review deleted successfully"})
 }
  catch(error){
-        console.log(error.message);
+        logger.error("review.deletion_failed", { error: error.message, reviewId: req.body?.reviewId });
         return res.json({message:error.message, success:false})
     }
 }
@@ -63,8 +65,7 @@ export const getReview =async(req,res)=>{
      return  res.json({success:true,reviews})
     }
      catch(error){
-        console.log(error.message);
+        logger.error("review.fetch_failed", { error: error.message });
         return res.json({message:error.message, success:false})
     }
 }
-

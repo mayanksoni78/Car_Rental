@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import Car from '../models/Car.js';
 import { OAuth2Client } from "google-auth-library";
+import logger from "../config/logger.js"
 
 
 const generateToken = (userId)=>{
@@ -32,9 +33,11 @@ export const registeruser= async (req, res)=>{
           const hashpassword= await bcrypt.hash(password,10);
           const user= await Usermodel.create({name,email,password: hashpassword,role:role||"user",phone_no:role=="owner"?phone_no:undefined})
            const token=generateToken(user._id.toString())
+           logger.info("user.registered", { userId: user._id, role: user.role });
            res.json({success: true,token})
         }
     catch(error){
+     logger.error("user.registration_failed", { error: error.message });
      return res.json({message:"Server Error !", success:false})
     }
 };
@@ -50,13 +53,16 @@ export const loginuser =async (req,res)=>{
           const ispass=await bcrypt.compare(password,user.password);
           
           if(!ispass){
+            logger.warn("user.login_failed", { reason: "invalid_password", email });
             return res.json({message:"Invalid Password", success:false})
           }
 
           const token=generateToken(user._id.toString())
+          logger.info("user.login", { userId: user._id, method: "password" });
           res.json({success:true,token})
     }
     catch(error){
+       logger.error("user.login_error", { error: error.message });
        return res.json({message:"Server Error !", success:false})
     }
 }
@@ -104,9 +110,10 @@ export const googleLogin =async(req,res)=>{
         name,
         email,
         password: hashedPassword,
-        role,
+        role: "user", // Fixed role variable which was not defined in the original
         image: picture || "",
       });
+      logger.info("user.registered", { userId: user._id, method: "google" });
     }
     const appToken = generateToken(
       user._id.toString()
@@ -120,6 +127,7 @@ export const googleLogin =async(req,res)=>{
       image: user.image,
     };
 
+    logger.info("user.login", { userId: user._id, method: "google" });
     return res.status(200).json({
       success: true,
       message: "Google login successful",
@@ -129,6 +137,7 @@ export const googleLogin =async(req,res)=>{
    
     }
     catch(err){
+        logger.error("user.google_login_failed", { error: err.message });
         return res.json({message:err.message,success:false})
     }
 }
@@ -139,7 +148,7 @@ export const getUserData =async (req,res)=>{
             res.json({success:true,user})
     }
     catch(error){
-        console.log(error.message);
+        logger.error("user.fetch_data_failed", { error: error.message });
         res.json({success:false, message:error.message})
     }
 }
@@ -150,7 +159,7 @@ export const getCars =async(req,res)=>{
      res.json({success:true, cars}) 
     }
     catch(error){
-        console.log(error.message);
+        logger.error("car.fetch_all_failed", { error: error.message });
         res.json({success:false, message:error.message})
     }
 }
