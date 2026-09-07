@@ -25,65 +25,80 @@ export const AppProvider=({children})=>{
   //fuction to check user login
   const fetchUser =async()=>{
     try{
-       const {data}= await axios.get('/user/data')
-       if(data.success){
+       const {data}= await axios.get('/user/data');
+       if(data.success && data.user){
         setUser(data.user);
-        setIsOwner(data.user.role==='owner')
+        setIsOwner(data.user.role==='owner');
        }
        else{
-        navigate('/')
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setIsOwner(false);
+        delete axios.defaults.headers.common['Authorization'];
        }
     }
     catch(error){
-        toast.error(error.message);
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setIsOwner(false);
+        delete axios.defaults.headers.common['Authorization'];
     }
   }
   //Function to fetch all cars from the server
   const fetchCars =async()=>{
     try{
        const {data}=  await axios.get('/user/cars');
-       data.success ? setCars(data.cars) :toast.error(data.message)
-
+       if(data.success && data.cars) {
+         setCars(data.cars);
+       }
     }
     catch(error){
-        toast.error(error.message)
+        console.error("Error fetching cars:", error.message);
     }
   }
 
   //Function to fetch review
   const fetchReviews =async()=>{
     try{
-     const {data}=  await axios.get('/review/get-review');
-       data.success ? setReviews(data.review) :toast.error(data.message)
-
+      const {data}=  await axios.get('/review/get-review');
+      if(data.success && data.review) {
+        setReviews(data.review);
+      }
     }
     catch(error){
-        toast.error(error.message)
+        console.error("Error fetching reviews:", error.message);
     }
   }
 
   // Function to log out 
   const logout=()=>{
-    localStorage.removeItem('token')
-    setToken(null)
-    setUser(null)
-    setIsOwner(false)
-    axios.defaults.headers.common['Authorization']=''
-    toast.success('You have been Log Out')
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    setIsOwner(false);
+    delete axios.defaults.headers.common['Authorization'];
+    toast.success('Logged out successfully');
+    navigate('/');
   }
 
   // useEffect to get the token from local storage
   useEffect(()=>{
-    const token=localStorage.getItem('token')
-    setToken(token)
-    fetchCars()
+    const savedToken=localStorage.getItem('token');
+    if(savedToken){
+      setToken(savedToken);
+    }
+    fetchCars();
   },[])
 
   useEffect(()=>{
-         if(token){
-            axios.defaults.headers.common['Authorization']= ` ${token}`
-            fetchUser()
-        }
+    if(token){
+      axios.defaults.headers.common['Authorization']= `Bearer ${token}`;
+      fetchUser();
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
   },[token])
 
     const value={

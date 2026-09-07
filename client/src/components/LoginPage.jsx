@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { GoogleLogin } from "@react-oauth/google";
 
 const LoginPage = () => {
-  const { axios, setToken, navigate } = useAppContext();
+  const { axios, setToken, setUser, setIsOwner, navigate } = useAppContext();
 
   const [state, setState] = useState("login");
   const [name, setName] = useState("");
@@ -12,10 +12,12 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [role, setRole] = useState('user');
+  const [loading, setLoading] = useState(false);
 
   const onSubmitHandler = async (event) => {
     try {
       event.preventDefault();
+      setLoading(true);
       const checkState = state === "login" 
         ? { email, password } 
         : role === "owner" 
@@ -25,33 +27,47 @@ const LoginPage = () => {
       const { data } = await axios.post(`/user/${state}`, checkState);
 
       if (data.success) {
-        navigate("/");
-        setToken(data.token);
         localStorage.setItem('token', data.token);
+        if (data.user) {
+          setUser(data.user);
+          setIsOwner(data.user.role === 'owner');
+        }
+        setToken(data.token);
+        toast.success(data.message || (state === "login" ? "Login successful" : "Registration successful"));
+        navigate("/");
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Authentication failed");
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Google handler
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
+      setLoading(true);
       const token = credentialResponse.credential;
       const { data } = await axios.post("/user/google-login", { token });
 
       if (data.success) {
         localStorage.setItem("token", data.token);
+        if (data.user) {
+          setUser(data.user);
+          setIsOwner(data.user.role === 'owner');
+        }
         setToken(data.token);
-        toast.success("Google Login Success");
+        toast.success(data.message || "Google Login Success");
         navigate("/");
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Google Login failed");
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message || "Google Sign-In failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,26 +208,51 @@ const LoginPage = () => {
               </div>
             )}
 
+            {/* Forgot Password Link */}
+            {state === "login" && (
+              <div className="w-full flex justify-end mt-2">
+                <span 
+                  onClick={() => navigate('/forgot-password')} 
+                  className="text-xs sm:text-sm text-indigo-500 hover:text-indigo-600 hover:underline cursor-pointer"
+                >
+                  Forgot Password?
+                </span>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
-              className="mt-6 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity text-sm font-medium shadow-sm"
+              disabled={loading}
+              className={`mt-6 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity text-sm font-medium shadow-sm flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
+              {loading && (
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
               {state === "login" ? "Login" : "Sign up"}
             </button>
 
             {/* Google Login Container */}
-            <div className="w-full mt-4 flex justify-center">
-              <div className="w-full max-w-[280px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.01] flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => toast.error("Google Login Failed")}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                  logo_alignment="left"
-                  width="100%" 
-                />
+            <div className="w-full mt-4 flex flex-col items-center">
+              <div className="flex items-center w-full my-2">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="px-3 text-xs text-gray-500">OR</span>
+                <div className="flex-grow border-t border-gray-200"></div>
+              </div>
+              <div className="w-full max-w-[280px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.01] flex justify-center mt-2">
+                <div type="button" onClick={(e) => e.stopPropagation()}>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error("Google Login Failed")}
+                    theme="outline"
+                    size="large"
+                    shape="pill"
+                    logo_alignment="left"
+                  />
+                </div>
               </div>
             </div>
 

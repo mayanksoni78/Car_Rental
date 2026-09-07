@@ -13,11 +13,16 @@ const UserSchema=new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
+        required: function() { return !this.googleId; },
+    },
+    googleId:{
+        type:String,
+        sparse: true,
+        unique: true
     },
     role:{
         type:String,
-        enum:["owner", "user"],
+        enum:["owner", "user", "admin"],
         default:'user'
     },
    
@@ -28,8 +33,12 @@ const UserSchema=new mongoose.Schema({
     phone_no:{
         type:String,
         default:"",
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 },{timestamps:true});
+
+UserSchema.index({ resetPasswordToken: 1 });
 
 const Usermodel=mongoose.model('User',UserSchema);
 export default Usermodel;

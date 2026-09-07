@@ -1,29 +1,42 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Banner = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col md:flex-row md:items-start items-center justify-between px-5 sm:px-7 md:px-10 md:pl-14 pt-8 sm:pt-10 bg-linear-to-r from-[#0a5d61] to-[#92dee2] max-w-7xl mx-3 sm:mx-4 md:mx-auto rounded-2xl overflow-hidden">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 rounded-3xl p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between overflow-hidden shadow-xl border border-slate-800">
+        
+        {/* Soft Ambient Glow */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="text-white max-w-xl text-center md:text-left">
-        <h2 className="text-xl sm:text-xl md:text-2xl font-medium">Do You Own a Car?</h2>
-         <p className="mt-2 text-[#fff7d7] text-sm sm:text-sm md:text-base leading-relaxed">
-         Monetize your vehicle effortlessly by listing it on CarRental.
-         We take care of insurance, driver verification and secure payments —
-         so you can earn passive income, stress-free.</p>
+        {/* Text Content */}
+        <div className="text-white max-w-xl text-center lg:text-left z-10 mb-8 lg:mb-0">
+          <span className="inline-block text-teal-400 font-bold text-xs uppercase tracking-widest bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-lg mb-4">
+            Fast & Reliable
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight mb-4 text-white">
+            Ready for your next journey?
+          </h2>
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-lg">
+            Find the right car, choose your dates, and hit the road with confidence. Instant booking with zero paperwork delays.
+          </p>
+        </div>
 
-        <button onClick={()=>(navigate("/my-booking"))}className="mt-4 mb-4 w-full sm:w-auto px-5 py-2 bg-[#f6f9e3] text-[#2c5855] font-semibold rounded-3xl hover:bg-[#e7dbab] transition-all duration-300"> List Your Car</button>
-      </div >
-      <div className="mt-6 mb-6 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
-        <img src="https://www.freeiconspng.com/uploads/audi-car-png-image-side-view-7.png" alt="Image" className="-56 sm:w-64 md:w-80 lg:w-[420px] bject-contain drop-shadow-xl hover:scale-105 transition-transform duration-500"
-        />
+        {/* Real Vehicle Visual */}
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-end z-10">
+          <img 
+            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop" 
+            alt="Premium Car Fleet" 
+            className="w-full max-w-md rounded-2xl shadow-2xl object-cover border border-slate-700/60 hover:scale-[1.01] transition-transform duration-500"
+          />
+        </div>
+        
       </div>
-      
-    </div>
-  )
-}
+    </section>
+  );
+};
 
-export default Banner
+export default Banner;

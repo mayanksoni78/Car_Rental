@@ -33,7 +33,7 @@ const BookingDetails = () => {
     if (user) {
       fetchBooking();
     }
-  }, [bookingId, axios, user, navigate]);
+  }, [bookingId, user?._id]);
 
   const handleDownloadPDF = () => {
     toast.success("Downloading Invoice...");

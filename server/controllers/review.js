@@ -57,15 +57,12 @@ export const deleteReview =async (req,res)=>{
     }
 }
 
-export const getReview =async(req,res)=>{
-
-    try{
-       const {_id}=req.user;
-       const reviews=await Review.find().populate("user","name _id").sort({createdAt:-1})
-     return  res.json({success:true,reviews})
-    }
-     catch(error){
+export const getReview = async (req, res) => {
+    try {
+        const reviews = await Review.find().populate("user", "name _id").sort({ createdAt: -1 });
+        return res.json({ success: true, reviews });
+    } catch (error) {
         logger.error("review.fetch_failed", { error: error.message });
-        return res.json({message:error.message, success:false})
+        return res.json({ message: error.message, success: false });
     }
 }

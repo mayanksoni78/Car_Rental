@@ -5,6 +5,6 @@ const reviewrouter=express.Router();
 
 reviewrouter.post("/add-review",protect,addReview);
 reviewrouter.post("/delete-review",protect,deleteReview);
-reviewrouter.get("/get-review",protect,getReview);
+reviewrouter.get("/get-review",getReview);
 
 export default reviewrouter;

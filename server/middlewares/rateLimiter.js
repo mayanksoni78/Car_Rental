@@ -15,12 +15,12 @@ const createLimiter = (windowMs, max, message) => {
 
 export const apiLimiter = createLimiter(
     process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, 
-    process.env.RATE_LIMIT_MAX || 100
+    process.env.RATE_LIMIT_MAX || 1000
 );
 
 export const authLimiter = createLimiter(
     process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, 
-    process.env.AUTH_RATE_LIMIT_MAX || 10,
+    process.env.AUTH_RATE_LIMIT_MAX || 200,
     "Too many login attempts. Please try again later."
 );
 

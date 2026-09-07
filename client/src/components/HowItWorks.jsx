@@ -3,58 +3,69 @@ import React from 'react';
 const HowItWorks = () => {
   const steps = [
     {
-      id: 1,
-      icon: "fa-solid fa-location-dot",
-      title: "Choose Location",
-      description: "Select your preferred pick-up and drop-off locations from our wide network of cities."
+      step: "01",
+      title: "Select Location",
+      desc: "Choose from 10+ major cities and pickup points across the nation."
     },
     {
-      id: 2,
-      icon: "fa-regular fa-calendar",
-      title: "Pick Dates",
-      description: "Select your travel dates and times to check the availability of cars."
+      step: "02",
+      title: "Choose Dates",
+      desc: "Pick your departure and return schedule with instant live availability."
     },
     {
-      id: 3,
-      icon: "fa-solid fa-car",
-      title: "Book Your Car",
-      description: "Browse our extensive fleet of premium vehicles and find the perfect car for your needs."
+      step: "03",
+      title: "Book & Pay",
+      desc: "Secure online checkout powered by Razorpay with zero hidden charges."
     },
     {
-      id: 4,
-      icon: "fa-solid fa-road",
-      title: "Hit the Road",
-      description: "Complete the secure payment process and you're ready for your adventure."
+      step: "04",
+      title: "Drive Away",
+      desc: "Pick up your spotless, sanitized car and hit the open road with ease."
     }
   ];
 
   return (
-    <div className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-gray-800 mb-4">How It Works</h2>
-          <p className="text-gray-500">Renting a car has never been easier. Follow these simple steps to get started on your journey.</p>
+    <section className="py-20 bg-slate-50 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="text-teal-600 font-bold text-xs uppercase tracking-widest bg-teal-50 px-3 py-1 rounded-full">
+            Simple Process
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3 mb-4">
+            How It Works
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base">
+            Rent your favorite car in 4 simple steps without paperwork hassles.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-          {/* Connector Line for Desktop */}
-          <div className="hidden lg:block absolute top-12 left-[12%] right-[12%] h-0.5 bg-gray-100 z-0"></div>
-
-          {steps.map((step) => (
-            <div key={step.id} className="relative z-10 flex flex-col items-center text-center group">
-              <div className="w-24 h-24 bg-white rounded-full border-4 border-gray-50 shadow-xl flex items-center justify-center mb-6 group-hover:border-teal-100 group-hover:scale-110 transition-all duration-300">
-                <i className={`${step.icon} text-3xl text-teal-600`}></i>
+        {/* Steps Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {steps.map((item, idx) => (
+            <div 
+              key={idx} 
+              className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300 relative group flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-4xl font-black text-slate-200 group-hover:text-teal-500 transition-colors duration-300">
+                  {item.step}
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 mt-4 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
-              <div className="bg-teal-50 text-teal-700 w-8 h-8 rounded-full flex items-center justify-center font-black text-sm mb-4 absolute top-0 right-1/2 translate-x-12 -translate-y-2 border-2 border-white">
-                {step.id}
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{step.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{step.description}</p>
+              <div className="w-8 h-1 bg-slate-100 group-hover:bg-teal-500 rounded-full mt-6 transition-colors duration-300"></div>
             </div>
           ))}
         </div>
+
       </div>
-    </div>
+    </section>
   );
 };
 

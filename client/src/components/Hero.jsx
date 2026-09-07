@@ -14,86 +14,89 @@ const Hero = () => {
   const cityList = ["Delhi", "Mumbai", "Bengaluru", "Chennai", "Kolkata", "Ahmedabad", "Hyderabad", "Pune"];
 
   return (
-    <div className="relative bg-teal-950 min-h-[85vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image / Overlay */}
+    <div className="relative bg-slate-950 min-h-[82vh] flex items-center justify-center overflow-hidden py-16 sm:py-24">
+      {/* Background Image & Theme Ambient Lighting */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop" 
-          alt="Premium Car" 
-          className="w-full h-full object-cover opacity-40"
+          src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2070&auto=format&fit=crop" 
+          alt="Premium Fleet" 
+          className="w-full h-full object-cover object-center opacity-35"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-teal-950 via-teal-950/60 to-transparent"></div>
+        {/* Deep Slate + Teal Mood Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-950/75 to-slate-950"></div>
+        {/* Soft Teal Ambient Glow for seamless theme matching */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[300px] bg-teal-500/15 rounded-full blur-[130px] pointer-events-none"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col items-center text-center">
         
-        <div className="text-center mb-10 max-w-3xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight mb-6 tracking-tight">
-            Find Your Perfect Drive
-          </h1>
-          <p className="text-lg sm:text-xl text-teal-100 font-medium">
-            Explore our premium selection of vehicles for your next adventure. Easy booking, flexible rates.
-          </p>
-        </div>
+
+        {/* Hero Heading */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight tracking-tight mb-6 max-w-4xl">
+          Find Your Perfect Ride. <br className="hidden sm:inline" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300">
+            Anywhere, Anytime.
+          </span>
+        </h1>
+        
+        <p className="text-base sm:text-lg md:text-xl text-slate-300 font-normal max-w-2xl mb-10 leading-relaxed">
+          Premium car rentals with instant booking, flexible duration, and zero hidden fees. Pick up and hit the open road.
+        </p>
 
         {/* Search Widget */}
-        <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md p-2 rounded-2xl sm:rounded-full border border-white/20 shadow-2xl">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row bg-white rounded-xl sm:rounded-full p-2 gap-2 w-full">
+        <div className="w-full max-w-4xl bg-white/10 backdrop-blur-xl p-3 rounded-2xl sm:rounded-full border border-white/20 shadow-2xl">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row bg-white rounded-xl sm:rounded-full p-2 sm:p-3 gap-3 w-full items-center">
             
-            <div className="flex-1 px-4 py-2 border-b sm:border-b-0 sm:border-r border-gray-100 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">Pick-up Location</label>
-              <div className="flex items-center gap-2">
-                <i className="fa-solid fa-location-dot text-gray-400"></i>
-                <select 
-                  required 
-                  value={pickupLocation} 
-                  onChange={(e) => setPickupLocation(e.target.value)}
-                  className="w-full bg-transparent text-gray-800 font-bold focus:outline-none cursor-pointer text-sm sm:text-base appearance-none"
-                >  
-                  <option value="" disabled className="text-gray-400">Select city</option>
-                  {cityList.map(city => <option key={city} value={city} className="text-black">{city}</option>)}
-                </select>
-              </div>
+            {/* Location */}
+            <div className="w-full sm:flex-1 px-4 py-2 text-left border-b sm:border-b-0 sm:border-r border-slate-100">
+              <label className="block text-[11px] font-bold text-teal-700 uppercase tracking-wider mb-0.5">Location</label>
+              <select 
+                required 
+                value={pickupLocation} 
+                onChange={(e) => setPickupLocation(e.target.value)}
+                className="w-full bg-transparent text-slate-900 font-semibold focus:outline-none cursor-pointer text-sm sm:text-base"
+              >  
+                <option value="" disabled>Select city</option>
+                {cityList.map(city => <option key={city} value={city}>{city}</option>)}
+              </select>
             </div>
 
-            <div className="flex-1 px-4 py-2 border-b sm:border-b-0 sm:border-r border-gray-100 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">Pick-up Date</label>
-              <div className="flex items-center gap-2">
-                <i className="fa-regular fa-calendar text-gray-400"></i>
-                <input 
-                  value={pickupDate} 
-                  onChange={e => setPickupDate(e.target.value)} 
-                  type='date' 
-                  min={new Date().toISOString().split('T')[0]} 
-                  required 
-                  className="w-full bg-transparent text-gray-800 font-bold focus:outline-none cursor-pointer text-sm sm:text-base"
-                />
-              </div>
+            {/* Pick-up Date */}
+            <div className="w-full sm:flex-1 px-4 py-2 text-left border-b sm:border-b-0 sm:border-r border-slate-100">
+              <label className="block text-[11px] font-bold text-teal-700 uppercase tracking-wider mb-0.5">Pick-up Date</label>
+              <input 
+                value={pickupDate} 
+                onChange={e => setPickupDate(e.target.value)} 
+                type='date' 
+                min={new Date().toISOString().split('T')[0]} 
+                required 
+                className="w-full bg-transparent text-slate-900 font-semibold focus:outline-none cursor-pointer text-sm sm:text-base"
+              />
             </div>
 
-            <div className="flex-1 px-4 py-2 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">Return Date</label>
-              <div className="flex items-center gap-2">
-                <i className="fa-regular fa-calendar-check text-gray-400"></i>
-                <input 
-                  value={returnDate} 
-                  onChange={e => setReturnDate(e.target.value)} 
-                  type="date" 
-                  min={pickupDate || new Date().toISOString().split('T')[0]} 
-                  required
-                  className="w-full bg-transparent text-gray-800 font-bold focus:outline-none cursor-pointer text-sm sm:text-base"
-                />
-              </div>
+            {/* Return Date */}
+            <div className="w-full sm:flex-1 px-4 py-2 text-left">
+              <label className="block text-[11px] font-bold text-teal-700 uppercase tracking-wider mb-0.5">Return Date</label>
+              <input 
+                value={returnDate} 
+                onChange={e => setReturnDate(e.target.value)} 
+                type="date" 
+                min={pickupDate || new Date().toISOString().split('T')[0]} 
+                required
+                className="w-full bg-transparent text-slate-900 font-semibold focus:outline-none cursor-pointer text-sm sm:text-base"
+              />
             </div>
             
+            {/* Search Button */}
             <button 
               type="submit"
-              className="sm:ml-2 bg-teal-600 text-white font-bold px-8 py-4 rounded-xl sm:rounded-full hover:bg-teal-700 transition-colors shadow-lg shadow-teal-600/30 w-full sm:w-auto"
+              className="w-full sm:w-auto px-8 py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl sm:rounded-full transition-all duration-200 shadow-md shadow-teal-600/30 hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base whitespace-nowrap"
             >
               Search Cars
             </button>
           </form>
         </div>
+
       </div>
     </div>
   );

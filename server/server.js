@@ -19,6 +19,8 @@ app.use(cors({
   origin: [
     "https://car-rental-mu-ashy.vercel.app",
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
   ],
   credentials: true
 }));
@@ -53,10 +55,10 @@ app.use('/notifications', apiLimiter, notificationrouter)
 
 mongoose
   .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 5000, 
+    serverSelectionTimeoutMS: 30000, 
   })
   .then(() => {
-    logger.info("database.connected");
+    logger.info("Database.connected");
     app.listen(PORT, () => logger.info("server.started", { port: PORT }));
   })
   .catch((error) => {

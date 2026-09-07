@@ -18,6 +18,8 @@ import ContactUs from "./components/ContactUs.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Confirmation from "./pages/Confirmation.jsx";
 import BookingDetails from "./pages/BookingDetails.jsx";
+import ForgotPassword from "./components/ForgotPassword.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
 
 const App = () => {
 
@@ -42,6 +44,8 @@ const App = () => {
          <Route path="/contact-us" element={<ContactUs/>} />
          <Route path="/checkout/:id" element={<Checkout />} />
          <Route path="/confirmation/:bookingId" element={<Confirmation />} />
+         <Route path="/forgot-password" element={<ForgotPassword />} />
+         <Route path="/reset-password/:token" element={<ResetPassword />} />
          <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard/>}/>
           <Route path="add-car" element={<AddCar/>}/>
