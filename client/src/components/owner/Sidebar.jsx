@@ -1,111 +1,173 @@
-import React,{useState} from 'react'
-import {useLocation, NavLink } from 'react-router-dom'
+import React from 'react';
+import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
-import toast from 'react-hot-toast';
 
 const Sidebar = () => {
- 
-  const{ user , axios, fetchUser, navigate} = useAppContext();
-  const location=useLocation();
-  const[image,setImage]=useState('')
+  const { user, logout } = useAppContext();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const updateImage =async()=>{
-    try{
-      const formData= new FormData()
-      formData.append('image',image)
-
-       const{data}=await axios.post('/owner/update-image',formData)
-       
-       if(data.success){
-        fetchUser();
-        toast.success(data.message);
-        setImage('')
-       }
-       else{
-        toast.error(data.message)
-       }
-
-    }
-   
-    catch(error){
-      toast.error(error.message)
-    }
-  }
-  
-const DEFAULT_ICON =
-  "https://cdn-icons-png.flaticon.com/512/1828/1828479.png";
-
-    const ownerMenuLinks=[
-    {name:"Dashboard" , path: "/owner" ,icon:"fa-solid fa-gauge",coloredIcon:"fa-solid fa-gauge-high"},
-    {name:"Add Car" , path: "/owner/add-car" ,icon:"fa-solid fa-car-side",coloredIcon:"fa-solid fa-car-side"},
-    {name:"Manage Car" , path: "/owner/manage-car" ,icon:"fa-solid fa-car-rear",coloredIcon:"fa-solid fa-car-rear"},
-    {name:"Manage Booking" , path: "/owner/manage-booking-car" ,icon:"fa-solid fa-clipboard-list",coloredIcon:"fa-solid fa-clipboard-check"},
+  const ownerMenuLinks = [
+    {
+      name: "Dashboard",
+      path: "/owner",
+      exact: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      )
+    },
+    {
+      name: "My Cars",
+      path: "/owner/manage-car",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      )
+    },
+    {
+      name: "Add Car",
+      path: "/owner/add-car",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
+    {
+      name: "Bookings",
+      path: "/owner/manage-booking-car",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      )
+    },
+    {
+      name: "Profile",
+      path: "/owner/profile",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      )
+    },
   ];
 
+  const checkIsActive = (link) => {
+    if (link.exact) {
+      return location.pathname === link.path;
+    }
+    return location.pathname.startsWith(link.path);
+  };
+
   return (
-    <div className="w-23 sm:w-45  md:w-60 bg-white shadow-lg h-auto md:h-screen p-4 md:p-6 flex flex-col items-center border-r border-gray-200">
+    <aside className="w-64 bg-[#05091B] border-r border-[#1E293B]/70 flex flex-col justify-between p-4 sm:p-5 flex-shrink-0 select-none text-white md:min-h-[calc(100vh-72px)]">
       
-
-      <div className="mb-6 flex flex-col items-center">
-        <label htmlFor="image" className="relative cursor-pointer group">
-          {/* Profile Image */}
-          <img
-            src={image ? URL.createObjectURL(image) : user?.image} 
-            alt="Profile"
-            onError={(e) => { e.target.src = "https://th.bing.com/th?q=Profile+Person+Icon+No+Background&w=120&h=120&c=1&rs=1&qlt=70&o=7&cb=1&dpr=1.1&pid=InlineBlock&rm=3&ucfimg=1&mkt=en-IN&cc=IN&setlang=en&adlt=moderate&t=1&mw=247";}}
-           className="w-10 h-10 sm:w-15 sm:h-15 md:w-20 md:h-20 rounded-full object-cover border-2 border-[#185156] shadow-sm group-hover:opacity-80 transition-all duration-300"
-          />
-      
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
-            hidden onChange={e=>setImage(e.target.files[0])} 
-          />
-          
-          <div className="absolute inset-0 border-2 border-[#185156]  flex items-center justify-center rounded-full bg-[#ffff] opacity-1 group-hover:opacity-100 transition-all duration-300">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="Upload" className="w-5 h-5 sm:w-6 sm:h-6" />
+      <div className="space-y-6">
+        
+        {/* Profile Card Header */}
+        <div 
+          onClick={() => navigate('/owner/profile')}
+          className="p-3.5 bg-[#10172B] rounded-2xl border border-slate-800/80 flex items-center gap-3 cursor-pointer hover:border-[#3D4C27] transition-all group"
+        >
+          <div className="relative w-11 h-11 rounded-xl bg-[#05091B] border border-slate-700/80 p-0.5 flex-shrink-0">
+            {user?.image ? (
+              <img
+                src={user.image}
+                alt={user?.name || "Owner"}
+                className="w-full h-full rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-full h-full rounded-lg bg-[#3D4C27] text-[#FAF7F0] font-black text-base flex items-center justify-center uppercase">
+                {user?.name ? user.name.charAt(0) : 'O'}
+              </div>
+            )}
+            <span className="w-2.5 h-2.5 rounded-full bg-[#8EA860] border border-[#05091B] absolute -bottom-0.5 -right-0.5"></span>
           </div>
-        </label>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-white truncate group-hover:text-[#8EA860] transition-colors">
+              {user?.name || "Owner"}
+            </p>
+            <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-[#8EA860]">
+              Owner Console
+            </span>
+          </div>
+        </div>
+
+        {/* Navigation Items */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 mb-2">
+            Operations
+          </p>
+
+          {ownerMenuLinks.map((link, index) => {
+            const active = checkIsActive(link);
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                  active
+                    ? "bg-[#3D4C27] text-[#FAF7F0] shadow-sm shadow-[#3D4C27]/40"
+                    : "text-slate-300 hover:text-white hover:bg-[#10172B]/80"
+                }`}
+              >
+                <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 ${active ? "text-[#FAF7F0]" : "text-slate-400"}`}>
+                  {link.icon}
+                </div>
+                <span className="tracking-wide">{link.name}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+
       </div>
-       
-       {image && (
-        <button onClick={updateImage}className="mt-1 flex items-center px-4 py-1.5 sm:px-5 sm:py-2 bg-[#185156] text-white text-sm font-medium rounded-3xl shadow-sm hover:bg-[#0f3f42] transition-all duration-300">
-           Save 
+
+      {/* Bottom Nav / Utility Links */}
+      <div className="pt-5 mt-6 border-t border-slate-800/80 space-y-1">
+        <button
+          onClick={() => navigate("/")}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-[#10172B] transition-all cursor-pointer text-left"
+        >
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-slate-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          </div>
+          <span>Customer View</span>
         </button>
-       )}
 
-     <p className="text-xs md:text-lg font-semibold text-[#0f2f2a] mb-4 md:mb-6 text-center ">
-       {user?.name}
-      </p>
+        <button
+          onClick={() => navigate("/my-booking")}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-[#10172B] transition-all cursor-pointer text-left"
+        >
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-slate-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </div>
+          <span>My Bookings</span>
+        </button>
 
-  
-      <div className="w-full space-y-1">
-
-        {ownerMenuLinks.map((link,index)=>(
-            <NavLink key={index} to={link.path} 
-            className={`flex items-center gap-1 sm:gap-2 md:gap-3 px-3 py-2 rounded-lg transition-all duration-300 ${link.path===location.pathname ? "bg-[#163e3d] text-white font-semibold" : "text-[#163e3d] font-medium border border-transparent hover:bg-[#fcfae2] hover:border-[#163e3d] transition-all duration-300"} `}>
-              <i className={`${link.path === location.pathname ? link.coloredIcon: link.icon } text-[7px] sm:text-xs md:text-lg`}></i>
-              <span  className="text-[7px] sm:text-xs md:text-lg">{link.name}</span>
-              
-            </NavLink>
-        ))}
-         <div  onClick={() =>{ navigate("/")}} className="flex items-center gap-1 sm:gap-2 md:gap-3  p-2 rounded-lg border border-transparent hover:bg-[#fcfae2]  cursor-pointer hover:border-[#163e3d] transition-all duration-300">
-           <i className="fa-solid fa-house text-[#163e3d] text-[7px] sm:text-xs md:text-lg"></i>
-          <span className="text-[#163e3d] font-medium text-[7px] sm:text-xs md:text-lg">Home</span>
-        </div>
-         <div  onClick={() =>{ navigate("/my-booking")}}className="flex items-center gap-1 sm:gap-2 md:gap-3  p-2 rounded-lg border border-transparent hover:bg-[#fcfae2]  cursor-pointer hover:border-[#163e3d] transition-all duration-300">
-          <i className="fa-solid fa-bookmark text-[#163e3d] text-[7px] sm:text-xs md:text-lg"></i>
-         <span className="text-[#163e3d] font-medium  text-[7px] sm:text-xs md:text-lg">My Bookings</span>
-        </div>
-        <div onClick={() =>{ navigate("/login")}} className="flex items-center gap-1 sm:gap-2 md:gap-3  p-2 rounded-lg border border-transparent hover:bg-[#fcfae2]  cursor-pointer hover:border-[#163e3d] transition-all duration-300">
-          <i className="fa-solid fa-right-from-bracket text-[#163e3d] text-[7px] sm:text-xs md:text-lg"></i>
-          <span className="text-[#163e3d] font-medium text-[7px] sm:text-xs md:text-lg">Logout</span>
-        </div>
+        <button
+          onClick={() => logout()}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#DC4C4C] hover:text-red-300 hover:bg-red-500/10 transition-all cursor-pointer text-left"
+        >
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-[#DC4C4C]">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <span>Sign Out</span>
+        </button>
       </div>
 
-    </div>
-  )
-}
+    </aside>
+  );
+};
 
-export default Sidebar
+export default Sidebar;

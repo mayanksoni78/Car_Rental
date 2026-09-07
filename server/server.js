@@ -46,6 +46,7 @@ app.use((req, res, next) => {
 
 import { apiLimiter } from "./middlewares/rateLimiter.js";
 import notificationrouter from "./routes/notification.js";
+import { initCancellationScheduler } from "./services/cancellationService.js";
 
 app.use('/user', apiLimiter, userrouter);
 app.use('/owner', apiLimiter, ownerrouter)
@@ -59,6 +60,8 @@ mongoose
   })
   .then(() => {
     logger.info("Database.connected");
+    // Start server-side auto-cancellation scheduler
+    initCancellationScheduler(5 * 60 * 1000);
     app.listen(PORT, () => logger.info("server.started", { port: PORT }));
   })
   .catch((error) => {

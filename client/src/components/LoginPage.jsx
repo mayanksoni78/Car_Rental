@@ -72,110 +72,115 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
       <div
-        className="relative bg-white rounded-2xl shadow-xl flex flex-col md:flex-row w-[95%] sm:w-full max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden"
+        className="relative bg-[#FAF7F0] border border-[#E4D9C7] rounded-3xl shadow-2xl flex flex-col md:flex-row w-[95%] sm:w-full max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left image section - Desktop Only */}
-        <div className="w-full md:w-1/2 hidden md:block">
+        <div className="w-full md:w-1/2 hidden md:block bg-[#05091B] p-6 flex flex-col justify-between relative overflow-hidden">
+          <div className="relative z-10">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8EA860]">Car Rental Platform</span>
+            <h3 className="text-2xl font-black text-white mt-1">Premium Mobility, Simplified.</h3>
+          </div>
           <img
-            className="h-full w-full object-cover"
-            src="https://plus.unsplash.com/premium_vector-1716902818044-90a5366a5962?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=880"
-            alt="leftSideImage"
+            className="w-full h-64 object-contain my-auto drop-shadow-xl relative z-10"
+            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600&auto=format&fit=crop"
+            alt="Car Showcase"
           />
+          <p className="text-slate-400 text-xs relative z-10">Verified vehicles, secure instant reservations, and transparent pricing.</p>
         </div>
 
-        {/* Right form section - Responsive Paddings */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-4 py-8 sm:p-8 md:p-10">
+        {/* Right form section */}
+        <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-6 py-8 sm:p-10">
           <form
             className="w-full max-w-sm flex flex-col items-center justify-center"
             onSubmit={onSubmitHandler}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-gray-900 font-medium text-center">
-              {state === "login" ? "Sign in" : "Sign up"}
+            <h2 className="text-2xl sm:text-3xl font-black text-[#05091B] text-center">
+              {state === "login" ? "Sign In" : "Create Account"}
             </h2>
 
-            <p className="text-xs sm:text-sm text-gray-500/90 mt-2 sm:mt-3 text-center px-2">
+            <p className="text-xs text-[#64748B] mt-1.5 text-center">
               {state === "login"
-                ? "Welcome back! Please sign in to continue"
-                : "Create your account to get started"}
+                ? "Enter your credentials to access your bookings"
+                : "Sign up to start renting or listing vehicles"}
             </p>
 
             {/* Role Toggles */}
             {state === "register" && (
-              <div className="mt-5 w-full flex gap-3">
+              <div className="mt-4 w-full flex gap-2 bg-[#F5F0E7] p-1 rounded-xl border border-[#E4D9C7]">
                 <button
                   type="button"
-                  className={`w-1/2 h-11 rounded-full border text-sm font-medium transition ${
+                  className={`w-1/2 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     role === "user"
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "bg-white text-gray-600 border-gray-200"
+                      ? "bg-[#05091B] text-white shadow-xs"
+                      : "text-[#64748B] hover:text-[#05091B]"
                   }`}
                   onClick={() => setRole("user")}
                 >
-                  User
+                  Customer
                 </button>
 
                 <button
                   type="button"
-                  className={`w-1/2 h-11 rounded-full border text-sm font-medium transition ${
+                  className={`w-1/2 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     role === "owner"
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "bg-white text-gray-600 border-gray-200"
+                      ? "bg-[#05091B] text-white shadow-xs"
+                      : "text-[#64748B] hover:text-[#05091B]"
                   }`}
                   onClick={() => setRole("owner")}
                 >
-                  Owner
+                  Car Owner
                 </button>
               </div>
             )}
 
             {/* Name Input */}
             {state === "register" && (
-              <div className="flex items-center mt-4 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-5 gap-2 focus-within:border-indigo-500 transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                  <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#6B7280" />
-                  <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" fill="#6B7280" />
+              <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 text-[#64748B]">
+                  <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="currentColor" />
+                  <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" fill="currentColor" />
                 </svg>
                 <input
                   onChange={(e) => setName(e.target.value)}
                   value={name}
                   type="text"
-                  placeholder="Name"
-                  className="bg-transparent outline-none text-sm w-full h-full pr-4"
+                  placeholder="Full Name"
+                  className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
                   required
                 />
               </div>
             )}
 
             {/* Email Input */}
-            <div className="flex items-center mt-4 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-5 gap-2 focus-within:border-indigo-500 transition-colors">
-              <svg width="16" height="11" viewBox="0 0 16 11" fill="none" className="flex-shrink-0">
+            <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
+              <svg width="15" height="11" viewBox="0 0 16 11" fill="none" className="flex-shrink-0 text-[#64748B]">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M0 .55.571 0H15.43l.57.55v9.9l-.571.55H.57L0 10.45zm1.143 1.138V9.9h13.714V1.69l-6.503 4.8h-.697zM13.749 1.1H2.25L8 5.356z"
-                  fill="#6B7280"
+                  fill="currentColor"
                 />
               </svg>
               <input
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
                 type="email"
-                placeholder="Email id"
-                className="bg-transparent outline-none text-sm w-full h-full pr-4"
+                placeholder="Email Address"
+                className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
                 required
               />
             </div>
 
             {/* Password Input */}
-            <div className="flex items-center mt-4 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-5 gap-2 focus-within:border-indigo-500 transition-colors">
-              <svg width="13" height="17" viewBox="0 0 13 17" fill="none" className="flex-shrink-0">
+            <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
+              <svg width="13" height="15" viewBox="0 0 13 17" fill="none" className="flex-shrink-0 text-[#64748B]">
                 <path
                   d="M13 8.5c0-.938-.729-1.7-1.625-1.7h-.812V4.25C10.563 1.907 8.74 0 6.5 0S2.438 1.907 2.438 4.25V6.8h-.813C.729 6.8 0 7.562 0 8.5v6.8c0 .938.729 1.7 1.625 1.7h9.75c.896 0 1.625-.762 1.625-1.7zM4.063 4.25c0-1.406 1.093-2.55 2.437-2.55s2.438 1.144 2.438 2.55V6.8H4.061z"
-                  fill="#6B7280"
+                  fill="currentColor"
                 />
               </svg>
               <input
@@ -183,26 +188,26 @@ const LoginPage = () => {
                 value={password}
                 type="password"
                 placeholder="Password"
-                className="bg-transparent outline-none text-sm w-full h-full pr-4"
+                className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
                 required
               />
             </div>
 
-            {/* Phone No Input (Fully Responsive) */}
+            {/* Phone No Input */}
             {state === "register" && role === "owner" && (
-              <div className="flex items-center mt-4 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-5 gap-2 focus-within:border-indigo-500 transition-colors">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+              <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 text-[#64748B]">
                   <path
                     d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.3 21 3 13.7 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"
-                    fill="#6B7280"
+                    fill="currentColor"
                   />
                 </svg>
                 <input
                   onChange={(e) => setPhoneNo(e.target.value)}
                   value={phoneNo}
                   type="tel"
-                  placeholder="Phone No."
-                  className="bg-transparent outline-none text-sm w-full h-full pr-4"
+                  placeholder="Phone Number"
+                  className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
                   required
                 />
               </div>
@@ -213,7 +218,7 @@ const LoginPage = () => {
               <div className="w-full flex justify-end mt-2">
                 <span 
                   onClick={() => navigate('/forgot-password')} 
-                  className="text-xs sm:text-sm text-indigo-500 hover:text-indigo-600 hover:underline cursor-pointer"
+                  className="text-xs text-[#64748B] hover:text-[#05091B] font-semibold hover:underline cursor-pointer"
                 >
                   Forgot Password?
                 </span>
@@ -224,25 +229,25 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-6 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity text-sm font-medium shadow-sm flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`mt-5 w-full h-11 rounded-xl text-[#FAF7F0] bg-[#3D4C27] hover:bg-[#4C5E31] font-black uppercase tracking-wider transition-all text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {loading && (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {state === "login" ? "Login" : "Sign up"}
+              {state === "login" ? "Sign In" : "Register"}
             </button>
 
             {/* Google Login Container */}
             <div className="w-full mt-4 flex flex-col items-center">
-              <div className="flex items-center w-full my-2">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="px-3 text-xs text-gray-500">OR</span>
-                <div className="flex-grow border-t border-gray-200"></div>
+              <div className="flex items-center w-full my-1.5">
+                <div className="flex-grow border-t border-[#E4D9C7]"></div>
+                <span className="px-2.5 text-[10px] font-bold text-[#64748B] uppercase">OR</span>
+                <div className="flex-grow border-t border-[#E4D9C7]"></div>
               </div>
-              <div className="w-full max-w-[280px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.01] flex justify-center mt-2">
+              <div className="w-full max-w-[280px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.01] flex justify-center mt-1">
                 <div type="button" onClick={(e) => e.stopPropagation()}>
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
@@ -258,23 +263,23 @@ const LoginPage = () => {
 
             {/* Dynamic Bottom Toggle Link */}
             {state === "login" ? (
-              <p className="text-gray-500/90 text-xs sm:text-sm mt-5 text-center">
+              <p className="text-[#64748B] text-xs mt-4 text-center">
                 Don’t have an account?{" "}
                 <span
-                  className="text-indigo-500 hover:text-indigo-600 hover:underline cursor-pointer font-semibold ml-1"
+                  className="text-[#05091B] font-black hover:text-[#3D4C27] hover:underline cursor-pointer ml-1"
                   onClick={() => setState("register")}
                 >
                   Sign up
                 </span>
               </p>
             ) : (
-              <p className="text-gray-500/90 text-xs sm:text-sm mt-5 text-center">
+              <p className="text-[#64748B] text-xs mt-4 text-center">
                 Already have an account?{" "}
                 <span
-                  className="text-indigo-500 hover:text-indigo-600 hover:underline cursor-pointer font-semibold ml-1"
+                  className="text-[#05091B] font-black hover:text-[#3D4C27] hover:underline cursor-pointer ml-1"
                   onClick={() => setState("login")}
                 >
-                  Login
+                  Sign in
                 </span>
               </p>
             )}

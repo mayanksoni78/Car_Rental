@@ -4,62 +4,58 @@ const HowItWorks = () => {
   const steps = [
     {
       step: "01",
-      title: "Select Location",
-      desc: "Choose from 10+ major cities and pickup points across the nation."
+      title: "Choose City",
+      desc: "Select your preferred pickup point."
     },
     {
       step: "02",
-      title: "Choose Dates",
-      desc: "Pick your departure and return schedule with instant live availability."
+      title: "Set Dates",
+      desc: "Pick your departure and return time."
     },
     {
       step: "03",
-      title: "Book & Pay",
-      desc: "Secure online checkout powered by Razorpay with zero hidden charges."
+      title: "Reserve",
+      desc: "Instant booking with Razorpay or Pay at Pickup."
     },
     {
       step: "04",
-      title: "Drive Away",
-      desc: "Pick up your spotless, sanitized car and hit the open road with ease."
+      title: "Drive",
+      desc: "Pick up keys and enjoy your journey."
     }
   ];
 
   return (
-    <section className="py-20 bg-slate-50 border-y border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 bg-[#FAF7F0] border-y border-[#E4D9C7]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-teal-600 font-bold text-xs uppercase tracking-widest bg-teal-50 px-3 py-1 rounded-full">
-            Simple Process
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3 mb-4">
+        <div className="text-center max-w-xl mx-auto mb-10">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#05091B] tracking-tight mb-2">
             How It Works
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base">
-            Rent your favorite car in 4 simple steps without paperwork hassles.
+          <p className="text-[#64748B] text-xs sm:text-sm">
+            4 simple steps to get behind the wheel.
           </p>
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((item, idx) => (
             <div 
               key={idx} 
-              className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300 relative group flex flex-col justify-between"
+              className="bg-[#F5F0E7] p-6 rounded-2xl border border-[#E4D9C7] hover:border-[#3D4C27] transition-all relative group flex flex-col justify-between"
             >
               <div>
-                <span className="text-4xl font-black text-slate-200 group-hover:text-teal-500 transition-colors duration-300">
+                <span className="text-3xl font-black text-[#3D4C27]/40 group-hover:text-[#3D4C27] transition-colors">
                   {item.step}
                 </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-4 mb-2">
+                <h3 className="text-base font-bold text-[#05091B] mt-3 mb-1.5">
                   {item.title}
                 </h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
+                <p className="text-[#64748B] text-xs leading-relaxed">
                   {item.desc}
                 </p>
               </div>
-              <div className="w-8 h-1 bg-slate-100 group-hover:bg-teal-500 rounded-full mt-6 transition-colors duration-300"></div>
             </div>
           ))}
         </div>

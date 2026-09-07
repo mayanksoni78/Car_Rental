@@ -92,16 +92,16 @@ const Car = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-[#F5F0E7] pb-20">
       {/* Header Banner */}
-      <div className="bg-slate-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Available Cars</h1>
-          <p className="text-slate-400 text-xs sm:text-sm mt-2 max-w-xl mx-auto">
-            Explore verified vehicles ready for your journey with transparent daily pricing.
+      <div className="bg-[#05091B] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#10172B]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">Available Cars</h1>
+          <p className="text-slate-400 text-xs sm:text-sm mt-1 max-w-md mx-auto">
+            Transparent daily rates with instant confirmation.
           </p>
           
-          <div className="relative mt-6 w-full max-w-xl mx-auto">
+          <div className="relative mt-4 w-full max-w-lg mx-auto">
             <svg className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
@@ -109,39 +109,39 @@ const Car = () => {
               onChange={(e) => setInput(e.target.value)} 
               value={input} 
               type="text" 
-              placeholder='Search brand, model, type, or city...' 
-              className="w-full border border-slate-700/80 bg-slate-900/90 text-white placeholder-slate-400 rounded-xl pl-11 pr-4 py-3 text-xs sm:text-sm focus:border-teal-400 focus:outline-none transition-all shadow-inner"
+              placeholder='Search brand, model, or city...' 
+              className="w-full border border-slate-700 bg-[#10172B] text-white placeholder-slate-400 rounded-xl pl-11 pr-4 py-2.5 text-xs sm:text-sm focus:border-[#8EA860] focus:outline-none transition-all shadow-inner"
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Showing <span className="text-slate-900 font-bold">{filterCars.length}</span> available vehicles
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="flex justify-between items-center mb-5">
+          <p className="text-xs text-[#64748B] font-medium">
+            Showing <span className="text-[#05091B] font-bold">{filterCars.length}</span> vehicles
           </p>
         </div>
 
         {filterCars.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filterCars.map((car, index) => (
               <CarCard key={index} car={car} />
             ))}
           </div>
         ) : (
-          <div className="bg-white p-12 rounded-2xl text-center border border-slate-200/80 shadow-2xs max-w-lg mx-auto">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-teal-50 mb-3 text-teal-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-[#FAF7F0] p-8 rounded-2xl text-center border border-[#E4D9C7] max-w-md mx-auto">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#EBF0E4] mb-2 text-[#3D4C27]">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">No cars found</h3>
-            <p className="text-slate-400 text-xs">Try adjusting your search query.</p>
+            <h3 className="text-sm font-bold text-[#05091B] mb-1">No cars found</h3>
+            <p className="text-[#64748B] text-xs">Try adjusting your search keywords.</p>
             {input && (
               <button 
                 onClick={() => setInput('')}
-                className="mt-5 px-5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition shadow-xs"
+                className="mt-4 px-4 py-1.5 bg-[#3D4C27] hover:bg-[#4C5E31] text-[#FAF7F0] rounded-lg text-xs font-bold transition cursor-pointer"
               >
                 Clear Search
               </button>

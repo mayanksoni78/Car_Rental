@@ -116,66 +116,115 @@ try{
 }
 
 //get dashboard data
-export const getDashboardData=async(req,res)=>{
-try{
- const {_id,role}=req.user;
+export const getDashboardData = async (req, res) => {
+    try {
+        const { _id, role } = req.user;
 
- if(role!=='owner'){
-    return res.json({success:false, message:"Unauthorized"});
- }
-const cars= await Car.find({owner:_id})
-const bookings =await Booking.find({owner:_id}).populate('car').sort({createdAt:-1})
- 
-const pendingBookings =await Booking.find({owner:_id, status:"pending"})
-const confirmedBookings =await Booking.find({owner:_id, status:"confirmed"})
+        if (role !== 'owner' && role !== 'admin') {
+            return res.status(403).json({ success: false, message: "Unauthorized: Owner access required" });
+        }
 
-const monthlyRevenue= bookings.slice().filter(booking=>booking.status==='confirmed').reduce((acc,booking)=>acc+booking.price, 0)
+        const cars = await Car.find({ owner: _id });
+        const bookings = await Booking.find({ owner: _id }).populate('car').sort({ createdAt: -1 });
 
-const dashboardData ={
-    totalCars: cars.length,
-    totalBookings: bookings.length,
-    pendingBookings: pendingBookings.length,
-    completeBookings: confirmedBookings.length,
-    recentBookings: bookings.slice(0,3), // show only 3 booking 
-    monthlyRevenue: monthlyRevenue,
-}
-res.json({success:true, dashboardData});
-}
- catch(error){
-        logger.error("owner.dashboard_fetch_failed", { error: error.message });
-        return res.status(404).json({message:error.message, success:false})
+        const pendingBookings = bookings.filter(b => b.status === "pending" || b.status === "pending_payment");
+        const confirmedBookings = bookings.filter(b => b.status === "confirmed" || b.status === "active" || b.status === "completed");
+
+        // Calculate current month date bounds
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const currentMonthBookings = bookings.filter(b => {
+            const bDate = new Date(b.createdAt);
+            const isConfirmedOrPaid = (b.status === 'confirmed' || b.status === 'completed' || b.status === 'active' || b.paymentStatus === 'paid');
+            return isConfirmedOrPaid && b.status !== 'cancelled' && bDate >= startOfMonth;
+        });
+
+        const monthlyRevenue = currentMonthBookings.reduce((acc, b) => acc + (Number(b.price) || 0), 0);
+        
+        const totalRevenue = bookings
+            .filter(b => (b.status === 'confirmed' || b.status === 'completed' || b.status === 'active' || b.paymentStatus === 'paid') && b.status !== 'cancelled')
+            .reduce((acc, b) => acc + (Number(b.price) || 0), 0);
+
+        const dashboardData = {
+            totalCars: cars.length,
+            totalBookings: bookings.length,
+            pendingBookings: pendingBookings.length,
+            completeBookings: confirmedBookings.length,
+            recentBookings: bookings.slice(0, 5),
+            monthlyRevenue: monthlyRevenue,
+            totalRevenue: totalRevenue
+        };
+
+        res.json({ success: true, dashboardData });
     }
-}
+    catch (error) {
+        logger.error("owner.dashboard_fetch_failed", { error: error.message });
+        return res.status(500).json({ message: error.message, success: false });
+    }
+};
 
-export const updateUserImage =async(req,res)=>{
-try{
-  const {_id}=req.user;
+export const updateUserImage = async (req, res) => {
+    try {
+        const { _id } = req.user;
+        const imageFile = req.file;
+        if (!imageFile) {
+            return res.json({ success: false, message: "No image file uploaded" });
+        }
 
-  const imageFile=req.file;
-
-        //upload image to imagekit
-    const fileBuffer =fs.readFileSync(imageFile.path)
-       const response=await imagekit.upload({
-            file:fileBuffer,
+        const fileBuffer = fs.readFileSync(imageFile.path);
+        const response = await imagekit.upload({
+            file: fileBuffer,
             fileName: imageFile.originalname,
-            folder:"/user"
-        })
-        //optimization through imagekit url
-        var optimizedImageUrl=imagekit.url({
-            path:response.filePath,
-            transformation:[
-                {width: '400'},
-                {quality:'auto'},
-                {format:'webp'},
+            folder: "/user"
+        });
+
+        var optimizedImageUrl = imagekit.url({
+            path: response.filePath,
+            transformation: [
+                { width: '400' },
+                { quality: 'auto' },
+                { format: 'webp' },
             ]
         });
-        const image =optimizedImageUrl;
-        await Usermodel.findByIdAndUpdate(_id,{image});
+
+        const image = optimizedImageUrl;
+        await Usermodel.findByIdAndUpdate(_id, { image });
         logger.info("user.image_updated", { userId: _id });
-        res.json({message:"Image Updated",success:true})
-}
- catch(error){
+        res.json({ message: "Profile photo updated successfully", success: true, image });
+    } catch (error) {
         logger.error("user.image_update_failed", { error: error.message });
-        return res.json({message:error.message, success:false})
+        return res.json({ message: error.message, success: false });
     }
-}
+};
+
+export const updateOwnerProfile = async (req, res) => {
+    try {
+        const { _id } = req.user;
+        const { name, phone_no } = req.body;
+
+        const updateData = {};
+        if (name && name.trim()) updateData.name = name.trim();
+        if (phone_no !== undefined) updateData.phone_no = phone_no.trim();
+
+        const updatedUser = await Usermodel.findByIdAndUpdate(_id, updateData, { new: true });
+        logger.info("owner.profile_updated", { userId: _id });
+
+        res.json({
+            success: true,
+            message: "Profile updated successfully.",
+            user: {
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                image: updatedUser.image,
+                phone_no: updatedUser.phone_no
+            }
+        });
+    } catch (error) {
+        logger.error("owner.profile_update_failed", { error: error.message });
+        return res.json({ message: error.message, success: false });
+    }
+};
+

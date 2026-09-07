@@ -186,16 +186,15 @@ export const getUserData =async (req,res)=>{
     }
 }
 // get car data
-export const getCars =async(req,res)=>{
-    try{
-     const cars= await Car.find({isAvailable:true})
-     res.json({success:true, cars}) 
-    }
-    catch(error){
+export const getCars = async (req, res) => {
+    try {
+        const cars = await Car.find({ isAvailable: true }).populate('owner', 'name email phone_no image createdAt');
+        res.json({ success: true, cars });
+    } catch (error) {
         logger.error("car.fetch_all_failed", { error: error.message });
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
 // forgot password
 export const forgotPassword = async (req, res) => {

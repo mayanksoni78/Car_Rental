@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import BackButton from './BackButton';
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
@@ -37,63 +38,66 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F0E7] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full mb-4">
+        <BackButton fallback="/login" />
+      </div>
+
+      <div className="max-w-md w-full space-y-6 bg-[#FAF7F0] p-8 sm:p-10 rounded-3xl border border-[#E4D9C7] shadow-xs">
+        <div className="text-center">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#3D4C27] bg-[#EBF0E4] px-2.5 py-0.5 rounded-md border border-[#3D4C27]/20">Account Security</span>
+          <h2 className="mt-2 text-2xl sm:text-3xl font-black text-[#05091B]">
             Reset Password
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your new password below.
+          <p className="mt-1.5 text-xs text-[#64748B]">
+            Please enter your new secure password below.
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={onSubmitHandler}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="new-password" className="sr-only">
-                New Password
-              </label>
-              <input
-                id="new-password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="New Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirmPassword"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+        <form className="mt-6 space-y-4" onSubmit={onSubmitHandler}>
+          <div>
+            <label htmlFor="new-password" className="block text-xs font-bold text-[#64748B] mb-1">
+              New Password
+            </label>
+            <input
+              id="new-password"
+              name="password"
+              type="password"
+              required
+              className="w-full px-4 py-2.5 bg-[#F5F0E7] border border-[#E4D9C7] text-xs text-[#05091B] rounded-xl focus:outline-none focus:border-[#3D4C27] transition-colors placeholder-[#94A3B8]"
+              placeholder="Minimum 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="confirm-password" className="block text-xs font-bold text-[#64748B] mb-1">
+              Confirm Password
+            </label>
+            <input
+              id="confirm-password"
+              name="confirmPassword"
+              type="password"
+              required
+              className="w-full px-4 py-2.5 bg-[#F5F0E7] border border-[#E4D9C7] text-xs text-[#05091B] rounded-xl focus:outline-none focus:border-[#3D4C27] transition-colors placeholder-[#94A3B8]"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
           </div>
 
           <div>
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`w-full py-2.5 px-4 bg-[#3D4C27] hover:bg-[#4C5E31] text-[#FAF7F0] text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {loading && (
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {loading ? 'Resetting...' : 'Reset Password'}
+              {loading ? 'Resetting Password...' : 'Reset Password'}
             </button>
           </div>
         </form>
