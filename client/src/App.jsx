@@ -15,6 +15,9 @@ import{Toaster} from 'react-hot-toast';
 import Review from "./pages/Review.jsx";
 import AboutUs from "./components/AboutUs.jsx";
 import ContactUs from "./components/ContactUs.jsx";
+import Checkout from "./pages/Checkout.jsx";
+import Confirmation from "./pages/Confirmation.jsx";
+import BookingDetails from "./pages/BookingDetails.jsx";
 
 const App = () => {
 
@@ -32,10 +35,13 @@ const App = () => {
          <Route path='/car-details/:id' element={<CarDetails/>}/>
          <Route path="/login" element={<LoginPage />} />
          <Route path="/my-booking" element={<MyBooking />} />
+         <Route path="/booking/:bookingId" element={<BookingDetails />} />
          <Route path='/reviews' element={<Review/>}/>
          <Route path="/cars" element={<Cars />} />
          <Route path="/about-us" element={<AboutUs/>} />
          <Route path="/contact-us" element={<ContactUs/>} />
+         <Route path="/checkout/:id" element={<Checkout />} />
+         <Route path="/confirmation/:bookingId" element={<Confirmation />} />
          <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard/>}/>
           <Route path="add-car" element={<AddCar/>}/>

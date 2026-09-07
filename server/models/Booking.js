@@ -7,11 +7,18 @@ const bookingSchema =new mongoose.Schema({
  owner: {type:ObjectId, ref: "User", required:true}, 
  pickupDate:{type:Date, required:true},
  returnDate:{type:Date, required:true},
- status:{type:String, enum:["pending","confirmed", "cancelled"],default:"pending"},
+ status:{type:String, enum:["pending","pending_payment","confirmed", "active", "completed", "cancelled", "expired"],default:"pending"},
  price:{type:Number, required:true},
- paymentId:{type:String, required:true},
- paymentStatus:{type:String, enum:["pending","paid"], default:"pending"}
+ paymentId:{type:String},
+ paymentStatus:{type:String, enum:["pending","processing","paid","failed"], default:"pending"},
+ receiptGenerated: { type: Boolean, default: false },
+ receiptGeneratedAt: { type: Date },
+ idempotencyKey: { type: String, unique: true, sparse: true }
 },{timestamps:true});
+
+bookingSchema.index({ car: 1, pickupDate: 1, returnDate: 1, status: 1 });
+bookingSchema.index({ user: 1, createdAt: -1 });
+bookingSchema.index({ owner: 1, createdAt: -1 });
 
 const Booking =mongoose.model('Booking',bookingSchema)
 export default Booking

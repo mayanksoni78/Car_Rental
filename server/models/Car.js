@@ -18,6 +18,11 @@ const CarSchema=new mongoose.Schema({
     isAvailable:{type:Boolean,  default:true},
     ownerName:{type:String,  reqiured:true},
     phone_no:{type: Number,  required:true},
+    reservedSlots: [{
+        pickupDate: { type: Date, required: true },
+        returnDate: { type: Date, required: true },
+        bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }
+    }]
 },{timestamps:true})
 
 const Car=mongoose.model('Car', CarSchema)

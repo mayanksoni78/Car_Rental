@@ -1,48 +1,56 @@
-# Car Rental 🚗
+# Car Rental Application
 
-A full-stack car rental web application built with React and Express.js that allows users to browse, book, and manage car rentals for specific dates with secure authentication, including Google Sign-In.
+A production-ready MERN stack car rental application featuring realistic payment flows, PDF generation, notification systems, and atomic database concurrency locks.
 
----
+## Architecture & Features
 
-## 📌 Features
+```mermaid
+graph TD
+    ReactFrontend -->|API Requests| ExpressBackend
+    ExpressBackend --> Auth[JWT & Rate Limiter]
+    Auth --> BookingService
+    Auth --> PaymentService
+    Auth --> NotificationService
+    PaymentService <--> Razorpay
+    BookingService --> MongoDB
+    BookingService --> PDFService[PDFKit Receipt]
+    PDFService --> EmailService[Nodemailer]
+    NotificationService --> EmailService
+```
 
-- 🚘 Browse available rental cars
-- 📅 Book cars for specific dates
-- 🔍 Search and filter vehicles
-- 🔐 User authentication & authorization
-- 🌐 Google Authentication (OAuth)
-- 📖 Booking history management
-- 💳 Secure booking workflow
-- 📱 Fully responsive design
+### 1. Booking Flow & Concurrency
+The application prevents double-booking using MongoDB's atomic `findOneAndUpdate` combined with ACID transactions. It guarantees that if multiple users attempt to book the exact same car at the exact same moment, only ONE booking succeeds and the rest gracefully fail.
 
----
+### 2. Payment Verification (Razorpay)
+Payments are verified securely on the backend. The server generates a Razorpay Order ID. When the frontend completes payment, the backend cryptographically verifies the `razorpay_signature` using the `RAZORPAY_KEY_SECRET`. Payments are **never** trusted based solely on frontend callbacks.
 
-## 🛠️ Tech Stack
+### 3. PDF Receipt Generation
+Upon a successful booking, a detailed PDF receipt is generated entirely server-side using `pdfkit`. The receipt is securely accessible via an authenticated API endpoint.
 
-### Frontend
-- React.js
-- React Router
-- Axios
-- Tailwind CSS / Bootstrap
+### 4. Email & In-App Notifications
+The `NotificationService` generates in-app notifications (viewable via a notification bell) and handles sending confirmation emails with the PDF receipt attached. Failed emails do not abort the successful booking.
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB
+### 5. API Rate Limiting
+Endpoints are protected by `express-rate-limit`. There are varied limits depending on sensitivity:
+- **General API**: 100 requests / 15 mins
+- **Auth/Login**: 10 requests / 15 mins
+- **Booking**: 20 requests / 15 mins
+- **Payments**: 10 requests / 15 mins
 
-### Authentication
-- JWT Authentication
-- Google OAuth 2.0
+## Getting Started
 
----
+### Installation
+1. Clone the repository
+2. `cd server` && `npm install`
+3. `cd ../client` && `npm install`
 
-## 📂 Project Structure
+### Configuration
+Copy `server/.env.example` to `server/.env` and fill in your details for:
+- MongoDB URI
+- Razorpay API Keys
+- Nodemailer Credentials
+- ImageKit Credentials
 
-```bash
-Car-Rental/
-│
-├── client/              # React frontend
-├── server/              # Express backend
-│
-├── package.json
-└── README.md
+### Running
+- Backend: `cd server && npm start`
+- Frontend: `cd client && npm run dev`

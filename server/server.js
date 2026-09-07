@@ -23,6 +23,8 @@ app.use(cors({
   credentials: true
 }));
 
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 // Request logging middleware
@@ -40,10 +42,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/user', userrouter);
-app.use('/owner',ownerrouter)
-app.use('/bookings',bookingrouter)
-app.use('/review',reviewrouter)
+import { apiLimiter } from "./middlewares/rateLimiter.js";
+import notificationrouter from "./routes/notification.js";
+
+app.use('/user', apiLimiter, userrouter);
+app.use('/owner', apiLimiter, ownerrouter)
+app.use('/bookings', apiLimiter, bookingrouter)
+app.use('/review', apiLimiter, reviewrouter)
+app.use('/notifications', apiLimiter, notificationrouter)
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -51,12 +57,13 @@ mongoose
   })
   .then(() => {
     logger.info("database.connected");
+    app.listen(PORT, () => logger.info("server.started", { port: PORT }));
   })
   .catch((error) => {
     logger.error("database.connection_failed", {
       error: error.message
     });
+    process.exit(1);
   });
 
-app.listen(PORT,()=>logger.info("server.started", { port: PORT }))
-app.get('/',(req,res)=>res.send("Server is Running"))
+app.get('/', (req, res) => res.send("Server is Running"));

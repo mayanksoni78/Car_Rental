@@ -7,8 +7,8 @@ import logger from "../config/logger.js"
 
 
 const generateToken = (userId)=>{
-    const payload=userId;
-   return  jwt.sign(payload,process.env.JWT_SECRET)
+    const payload={ _id: userId };
+   return  jwt.sign(payload,process.env.JWT_SECRET, { expiresIn: '7d' })
 }
 
 const client = new OAuth2Client(

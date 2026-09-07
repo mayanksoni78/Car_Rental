@@ -39,12 +39,16 @@ export const protect =async (req,res,next)=>{
     if(!token){
         return res.json({success:false, message:"Not Authorized"})
     }
-    try{
-         const userid=jwt.decode(token,process.env.JWT_SECRET)
-         if(!userid){
-            return res.json({message:"Not Authorized",success:false})
+    try {
+         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+         const userId = typeof decoded === 'string' ? decoded : decoded._id;
+         if (!userId) {
+            return res.status(401).json({message: "Not Authorized, token failed", success: false})
          }
-         req.user= await Usermodel.findById(userid).select("-password")
+         req.user = await Usermodel.findById(userId).select("-password");
+         if (!req.user) {
+             return res.status(401).json({message: "User not found", success: false})
+         }
          next();
     }
     catch(error){
