@@ -28,9 +28,9 @@ const Hero = () => {
         <img 
           src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2070&auto=format&fit=crop" 
           alt="Car" 
-          className="w-full h-full object-cover object-center opacity-25"
+          className="w-full h-full object-cover object-center opacity-65 scale-105 transition-all duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05091B]/95 via-[#05091B]/80 to-[#05091B]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#05091B]/70 via-[#05091B]/50 to-[#05091B]/95"></div>
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[260px] bg-[#3D4C27]/25 rounded-full blur-[120px] pointer-events-none"></div>
       </div>
 
