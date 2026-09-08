@@ -21,12 +21,20 @@ import Confirmation from "./pages/Confirmation.jsx";
 import BookingDetails from "./pages/BookingDetails.jsx";
 import ForgotPassword from "./components/ForgotPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
+import { useAppContext } from "./context/AppContext.jsx";
 
 const App = () => {
+  const { showLogin, setShowLogin } = useAppContext();
+
   return (
     <>
       <Toaster />
       <Navbar />
+
+      {/* Global login modal — triggered by showLogin in context */}
+      {showLogin && (
+        <LoginPage onClose={() => setShowLogin(false)} />
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -42,7 +50,7 @@ const App = () => {
         <Route path="/confirmation/:bookingId" element={<Confirmation />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        
+
         <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="add-car" element={<AddCar />} />
@@ -58,4 +66,3 @@ const App = () => {
 };
 
 export default App;
-

@@ -68,7 +68,13 @@ const AddCar = () => {
   };
 
   const cityList = [
-    "Delhi", "Mumbai", "Bengaluru", "Chennai", "Kolkata", "Ahmedabad", "Hyderabad", "Pune", "Jaipur", "Goa", "Chandigarh", "Kochi"
+    "Agra", "Ahmedabad", "Amritsar", "Bengaluru", "Bhopal",
+    "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Delhi",
+    "Faridabad", "Goa", "Gurgaon", "Guwahati", "Hyderabad",
+    "Indore", "Jaipur", "Jodhpur", "Kochi", "Kolkata",
+    "Lucknow", "Ludhiana", "Mumbai", "Mysuru", "Nagpur",
+    "Noida", "Patna", "Pune", "Surat", "Varanasi",
+    "Visakhapatnam",
   ];
 
   return (

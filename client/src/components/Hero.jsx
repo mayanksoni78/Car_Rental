@@ -11,7 +11,15 @@ const Hero = () => {
     navigate(`/cars?pickupLocation=${pickupLocation}&pickupDate=${pickupDate}&returnDate=${returnDate}`);
   };
 
-  const cityList = ["Delhi", "Mumbai", "Bengaluru", "Chennai", "Kolkata", "Ahmedabad", "Hyderabad", "Pune"];
+  const cityList = [
+    "Agra", "Ahmedabad", "Amritsar", "Bengaluru", "Bhopal",
+    "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Delhi",
+    "Faridabad", "Goa", "Gurgaon", "Guwahati", "Hyderabad",
+    "Indore", "Jaipur", "Jodhpur", "Kochi", "Kolkata",
+    "Lucknow", "Ludhiana", "Mumbai", "Mysuru", "Nagpur",
+    "Noida", "Patna", "Pune", "Surat", "Varanasi",
+    "Visakhapatnam",
+  ];
 
   return (
     <div className="relative bg-[#05091B] min-h-[72vh] flex items-center justify-center overflow-hidden py-14 sm:py-20">

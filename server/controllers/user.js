@@ -206,51 +206,125 @@ export const forgotPassword = async (req, res) => {
         const user = await Usermodel.findOne({ email: normalizedEmail });
 
         if (!user) {
-            // Anti-enumeration: still return success even if user not found
-            return res.json({ success: true, message: "If an account exists, a password reset link has been sent." });
+            // Anti-enumeration: return success even if user not found
+            return res.json({ success: true, message: "If an account with that email exists, a password reset link has been sent." });
         }
 
         // Generate cryptographically secure random token
         const resetToken = crypto.randomBytes(32).toString("hex");
-        
-        // Hash token for database storage
+
+        // Hash token for database storage — raw token never stored
         const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
-        
+
         user.resetPasswordToken = resetTokenHash;
         user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins
         await user.save();
 
-        const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+        // Trim trailing slash to prevent double-slash in reset URL
+        const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+        const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
         try {
             await transporter.sendMail({
-                from: process.env.EMAIL_USER,
+                from: `"Car Rental" <${process.env.EMAIL_USER}>`,
                 to: user.email,
-                subject: "Password Reset Request",
+                subject: "Password Reset Request — Car Rental",
                 html: `
-                    <h2>Password Reset</h2>
-                    <p>You requested a password reset. Click the link below to set a new password:</p>
-                    <a href="${resetUrl}">${resetUrl}</a>
-                    <p>This link will expire in 15 minutes.</p>
-                    <p>If you didn't request this, please ignore this email.</p>
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                </head>
+                <body style="margin:0;padding:0;background:#F5F0E7;font-family:Arial,sans-serif;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E7;padding:40px 0;">
+                    <tr>
+                      <td align="center">
+                        <table width="560" cellpadding="0" cellspacing="0" style="background:#FAF7F0;border-radius:16px;border:1px solid #E4D9C7;overflow:hidden;max-width:560px;width:100%;">
+                          <!-- Header -->
+                          <tr>
+                            <td style="background:#3D4C27;padding:28px 40px;text-align:center;">
+                              <h1 style="margin:0;color:#FAF7F0;font-size:22px;font-weight:900;letter-spacing:1px;">🚗 Car Rental</h1>
+                            </td>
+                          </tr>
+                          <!-- Body -->
+                          <tr>
+                            <td style="padding:36px 40px;">
+                              <p style="margin:0 0 8px;font-size:13px;color:#64748B;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Account Security</p>
+                              <h2 style="margin:0 0 16px;color:#05091B;font-size:24px;font-weight:900;">Password Reset Request</h2>
+                              <p style="margin:0 0 20px;color:#334155;font-size:15px;line-height:1.6;">
+                                Hello <strong>${user.name}</strong>,
+                              </p>
+                              <p style="margin:0 0 28px;color:#334155;font-size:15px;line-height:1.6;">
+                                We received a request to reset the password for your Car Rental account. Click the button below to set a new password.
+                              </p>
+                              <!-- CTA Button -->
+                              <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                                <tr>
+                                  <td style="background:#3D4C27;border-radius:10px;">
+                                    <a href="${resetUrl}"
+                                       style="display:inline-block;padding:14px 32px;color:#FAF7F0;font-size:14px;font-weight:900;text-decoration:none;letter-spacing:0.5px;">
+                                      Reset Password →
+                                    </a>
+                                  </td>
+                                </tr>
+                              </table>
+                              <p style="margin:0 0 8px;color:#64748B;font-size:13px;">
+                                Or copy and paste this link into your browser:
+                              </p>
+                              <p style="margin:0 0 28px;word-break:break-all;">
+                                <a href="${resetUrl}" style="color:#3D4C27;font-size:12px;">${resetUrl}</a>
+                              </p>
+                              <!-- Expiry warning -->
+                              <table width="100%" cellpadding="0" cellspacing="0" style="background:#EBF0E4;border-radius:10px;margin-bottom:20px;">
+                                <tr>
+                                  <td style="padding:14px 18px;">
+                                    <p style="margin:0;color:#3D4C27;font-size:13px;font-weight:700;">⏱ This link expires in 15 minutes.</p>
+                                  </td>
+                                </tr>
+                              </table>
+                              <p style="margin:0;color:#94A3B8;font-size:12px;line-height:1.6;">
+                                If you did not request a password reset, you can safely ignore this email. Your account password will not change.
+                              </p>
+                            </td>
+                          </tr>
+                          <!-- Footer -->
+                          <tr>
+                            <td style="padding:20px 40px;border-top:1px solid #E4D9C7;text-align:center;">
+                              <p style="margin:0;color:#94A3B8;font-size:11px;">© 2025 Car Rental Platform. All rights reserved.</p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </body>
+                </html>
                 `
             });
             logger.info("user.forgot_password_email_sent", { userId: user._id });
         } catch (emailError) {
+            // Clear the token so a stale hash is not left in the DB
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
             await user.save();
-            logger.error("user.forgot_password_email_failed", { error: emailError.message });
-            return res.status(500).json({ success: false, message: "Email could not be sent" });
+            // Log safe diagnostics — never log credentials or the reset token
+            logger.error("user.forgot_password_email_failed", {
+                error: emailError.message,
+                code: emailError.code || "n/a",
+                command: emailError.command || "n/a",
+            });
+            return res.status(500).json({ success: false, message: "Unable to send reset link. Please try again later." });
         }
 
-        res.json({ success: true, message: "If an account exists, a password reset link has been sent." });
+        res.json({ success: true, message: "If an account with that email exists, a password reset link has been sent." });
 
     } catch (error) {
         logger.error("user.forgot_password_error", { error: error.message });
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 // reset password
 export const resetPassword = async (req, res) => {

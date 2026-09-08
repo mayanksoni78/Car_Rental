@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from "@react-oauth/google";
 
-const LoginPage = () => {
+const LoginPage = ({ onClose }) => {
   const { axios, setToken, setUser, setIsOwner, navigate } = useAppContext();
 
   const [state, setState] = useState("login");
@@ -34,7 +34,13 @@ const LoginPage = () => {
         }
         setToken(data.token);
         toast.success(data.message || (state === "login" ? "Login successful" : "Registration successful"));
-        navigate("/");
+        // In modal mode: close modal and stay on current page
+        // In standalone /login route mode: navigate home
+        if (onClose) {
+          onClose();
+        } else {
+          navigate("/");
+        }
       } else {
         toast.error(data.message || "Authentication failed");
       }
@@ -72,62 +78,96 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4"
+      onClick={onClose || undefined}
+    >
       <div
         className="relative bg-[#FAF7F0] border border-[#E4D9C7] rounded-3xl shadow-2xl flex flex-col md:flex-row w-[95%] sm:w-full max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* X Close Button — always visible */}
+        <button
+          onClick={onClose || (() => navigate(-1))}
+          aria-label="Close"
+          className="absolute top-4 right-4 z-50 w-8 h-8 flex items-center justify-center rounded-full bg-[#F5F0E7] border border-[#E4D9C7] text-[#64748B] hover:bg-[#E4D9C7] hover:text-[#05091B] transition-all cursor-pointer shadow-xs"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* Left image section - Desktop Only */}
-        <div className="w-full md:w-1/2 hidden md:block bg-[#05091B] p-6 flex flex-col justify-between relative overflow-hidden">
-          <div className="relative z-10">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#8EA860]">Car Rental Platform</span>
-            <h3 className="text-2xl font-black text-white mt-1">Premium Mobility, Simplified.</h3>
-          </div>
+        <div className="w-full md:w-1/2 hidden md:flex items-center justify-center overflow-hidden bg-[#FAF7F0]">
           <img
-            className="w-full h-64 object-contain my-auto drop-shadow-xl relative z-10"
-            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600&auto=format&fit=crop"
-            alt="Car Showcase"
+            className="w-full h-full min-h-[500px] object-cover"
+            src="/car-illustration.jpg"
+            alt="Car Illustration"
           />
-          <p className="text-slate-400 text-xs relative z-10">Verified vehicles, secure instant reservations, and transparent pricing.</p>
         </div>
 
         {/* Right form section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-6 py-8 sm:p-10">
+        <div className="w-full md:w-1/2 flex flex-col justify-between px-6 py-8 sm:px-10 sm:py-10">
+          {/* Top Switcher Tabs (Login / Sign up) */}
+          <div className="flex items-center justify-end gap-6 text-xs font-semibold pb-4">
+            <button
+              type="button"
+              onClick={() => setState("login")}
+              className={`pb-1 cursor-pointer transition-all ${
+                state === "login"
+                  ? "text-[#3D4C27] font-bold border-b-2 border-[#3D4C27]"
+                  : "text-[#94A3B8] hover:text-[#05091B]"
+              }`}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setState("register")}
+              className={`pb-1 cursor-pointer transition-all ${
+                state === "register"
+                  ? "text-[#3D4C27] font-bold border-b-2 border-[#3D4C27]"
+                  : "text-[#94A3B8] hover:text-[#05091B]"
+              }`}
+            >
+              Sign up
+            </button>
+          </div>
+
           <form
-            className="w-full max-w-sm flex flex-col items-center justify-center"
+            className="w-full max-w-sm mx-auto flex flex-col justify-center flex-1 my-auto"
             onSubmit={onSubmitHandler}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl sm:text-3xl font-black text-[#05091B] text-center">
-              {state === "login" ? "Sign In" : "Create Account"}
-            </h2>
+            {/* Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#3D4C27] tracking-tight">
+                {state === "login" ? "Welcome back" : "Create Account"}
+              </h2>
+              <p className="text-xs text-[#94A3B8] mt-1">
+                {state === "login" ? "Please login to your account" : "Please register your account"}
+              </p>
+            </div>
 
-            <p className="text-xs text-[#64748B] mt-1.5 text-center">
-              {state === "login"
-                ? "Enter your credentials to access your bookings"
-                : "Sign up to start renting or listing vehicles"}
-            </p>
-
-            {/* Role Toggles */}
+            {/* Role Switcher (Customer / Car Owner) */}
             {state === "register" && (
-              <div className="mt-4 w-full flex gap-2 bg-[#F5F0E7] p-1 rounded-xl border border-[#E4D9C7]">
+              <div className="mb-4 w-full flex gap-2 bg-[#F5F0E7] p-1 rounded-xl border border-[#E4D9C7]">
                 <button
                   type="button"
-                  className={`w-1/2 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`w-1/2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     role === "user"
-                      ? "bg-[#05091B] text-white shadow-xs"
+                      ? "bg-[#3D4C27] text-white shadow-xs"
                       : "text-[#64748B] hover:text-[#05091B]"
                   }`}
                   onClick={() => setRole("user")}
                 >
                   Customer
                 </button>
-
                 <button
                   type="button"
-                  className={`w-1/2 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`w-1/2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     role === "owner"
-                      ? "bg-[#05091B] text-white shadow-xs"
+                      ? "bg-[#3D4C27] text-white shadow-xs"
                       : "text-[#64748B] hover:text-[#05091B]"
                   }`}
                   onClick={() => setRole("owner")}
@@ -137,99 +177,88 @@ const LoginPage = () => {
               </div>
             )}
 
-            {/* Name Input */}
-            {state === "register" && (
-              <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 text-[#64748B]">
-                  <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="currentColor" />
-                  <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" fill="currentColor" />
-                </svg>
-                <input
-                  onChange={(e) => setName(e.target.value)}
-                  value={name}
-                  type="text"
-                  placeholder="Full Name"
-                  className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Email Input */}
-            <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
-              <svg width="15" height="11" viewBox="0 0 16 11" fill="none" className="flex-shrink-0 text-[#64748B]">
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M0 .55.571 0H15.43l.57.55v9.9l-.571.55H.57L0 10.45zm1.143 1.138V9.9h13.714V1.69l-6.503 4.8h-.697zM13.749 1.1H2.25L8 5.356z"
-                  fill="currentColor"
-                />
-              </svg>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                type="email"
-                placeholder="Email Address"
-                className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
-                required
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
-              <svg width="13" height="15" viewBox="0 0 13 17" fill="none" className="flex-shrink-0 text-[#64748B]">
-                <path
-                  d="M13 8.5c0-.938-.729-1.7-1.625-1.7h-.812V4.25C10.563 1.907 8.74 0 6.5 0S2.438 1.907 2.438 4.25V6.8h-.813C.729 6.8 0 7.562 0 8.5v6.8c0 .938.729 1.7 1.625 1.7h9.75c.896 0 1.625-.762 1.625-1.7zM4.063 4.25c0-1.406 1.093-2.55 2.437-2.55s2.438 1.144 2.438 2.55V6.8H4.061z"
-                  fill="currentColor"
-                />
-              </svg>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                type="password"
-                placeholder="Password"
-                className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
-                required
-              />
-            </div>
-
-            {/* Phone No Input */}
-            {state === "register" && role === "owner" && (
-              <div className="flex items-center mt-3.5 w-full bg-[#F5F0E7] border border-[#E4D9C7] h-11 rounded-xl overflow-hidden pl-4 gap-2 focus-within:border-[#3D4C27] transition-colors">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 text-[#64748B]">
-                  <path
-                    d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.3 21 3 13.7 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"
-                    fill="currentColor"
+            {/* Inputs */}
+            <div className="space-y-4">
+              {state === "register" && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#94A3B8] mb-1">
+                    User Name
+                  </label>
+                  <input
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                    type="text"
+                    placeholder="Your name"
+                    className="w-full pb-2 pt-1 border-b border-[#E4D9C7] focus:border-[#3D4C27] outline-none text-xs text-[#05091B] bg-transparent transition-colors placeholder-[#CBD5E1]"
+                    required
                   />
-                </svg>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[#94A3B8] mb-1">
+                  Email
+                </label>
                 <input
-                  onChange={(e) => setPhoneNo(e.target.value)}
-                  value={phoneNo}
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="bg-transparent outline-none text-xs text-[#05091B] w-full h-full pr-3"
+                  onChange={(e) => setEmail(e.target.value)}
+                  value={email}
+                  type="email"
+                  placeholder="name@example.com"
+                  className="w-full pb-2 pt-1 border-b border-[#E4D9C7] focus:border-[#3D4C27] outline-none text-xs text-[#05091B] bg-transparent transition-colors placeholder-[#CBD5E1]"
                   required
                 />
               </div>
-            )}
 
-            {/* Forgot Password Link */}
-            {state === "login" && (
-              <div className="w-full flex justify-end mt-2">
-                <span 
-                  onClick={() => navigate('/forgot-password')} 
-                  className="text-xs text-[#64748B] hover:text-[#05091B] font-semibold hover:underline cursor-pointer"
-                >
-                  Forgot Password?
-                </span>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#94A3B8] mb-1">
+                  Pass Word
+                </label>
+                <input
+                  onChange={(e) => setPassword(e.target.value)}
+                  value={password}
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full pb-2 pt-1 border-b border-[#E4D9C7] focus:border-[#3D4C27] outline-none text-xs text-[#05091B] bg-transparent transition-colors placeholder-[#CBD5E1]"
+                  required
+                />
               </div>
-            )}
 
-            {/* Submit Button */}
+              {state === "register" && role === "owner" && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#94A3B8] mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    onChange={(e) => setPhoneNo(e.target.value)}
+                    value={phoneNo}
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    className="w-full pb-2 pt-1 border-b border-[#E4D9C7] focus:border-[#3D4C27] outline-none text-xs text-[#05091B] bg-transparent transition-colors placeholder-[#CBD5E1]"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Forgot? Link */}
+              {state === "login" && (
+                <div className="flex justify-end pt-1">
+                  <span
+                    onClick={() => navigate('/forgot-password')}
+                    className="text-xs text-[#64748B] hover:text-[#3D4C27] cursor-pointer transition-colors"
+                  >
+                    Forgot?
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`mt-5 w-full h-11 rounded-xl text-[#FAF7F0] bg-[#3D4C27] hover:bg-[#4C5E31] font-black uppercase tracking-wider transition-all text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`mt-6 w-full h-11 rounded-xl text-white bg-[#3D4C27] hover:bg-[#4C5E31] font-bold text-xs tracking-wider transition-all shadow-md shadow-[#3D4C27]/20 flex items-center justify-center gap-2 cursor-pointer ${
+                loading ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
             >
               {loading && (
                 <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -237,52 +266,29 @@ const LoginPage = () => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {state === "login" ? "Sign In" : "Register"}
+              {state === "login" ? "Login" : "Sign Up"}
             </button>
 
-            {/* Google Login Container */}
-            <div className="w-full mt-4 flex flex-col items-center">
-              <div className="flex items-center w-full my-1.5">
+            {/* Google Sign-in */}
+            <div className="w-full mt-5 flex flex-col items-center">
+              <div className="flex items-center w-full mb-3">
                 <div className="flex-grow border-t border-[#E4D9C7]"></div>
-                <span className="px-2.5 text-[10px] font-bold text-[#64748B] uppercase">OR</span>
+                <span className="px-2.5 text-[10px] text-[#94A3B8] uppercase">OR</span>
                 <div className="flex-grow border-t border-[#E4D9C7]"></div>
               </div>
-              <div className="w-full max-w-[280px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.01] flex justify-center mt-1">
+              <div className="w-full max-w-[280px] sm:max-w-xs flex justify-center">
                 <div type="button" onClick={(e) => e.stopPropagation()}>
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={() => toast.error("Google Login Failed")}
                     theme="outline"
-                    size="large"
+                    size="medium"
                     shape="pill"
                     logo_alignment="left"
                   />
                 </div>
               </div>
             </div>
-
-            {/* Dynamic Bottom Toggle Link */}
-            {state === "login" ? (
-              <p className="text-[#64748B] text-xs mt-4 text-center">
-                Don’t have an account?{" "}
-                <span
-                  className="text-[#05091B] font-black hover:text-[#3D4C27] hover:underline cursor-pointer ml-1"
-                  onClick={() => setState("register")}
-                >
-                  Sign up
-                </span>
-              </p>
-            ) : (
-              <p className="text-[#64748B] text-xs mt-4 text-center">
-                Already have an account?{" "}
-                <span
-                  className="text-[#05091B] font-black hover:text-[#3D4C27] hover:underline cursor-pointer ml-1"
-                  onClick={() => setState("login")}
-                >
-                  Sign in
-                </span>
-              </p>
-            )}
           </form>
         </div>
       </div>

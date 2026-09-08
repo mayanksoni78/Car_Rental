@@ -9,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { isSameDay, format, differenceInDays } from "date-fns";
 
 const Cardetails = () => {
-  const { user, cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext();
+  const { user, cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, setShowLogin } = useAppContext();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -61,6 +61,13 @@ const Cardetails = () => {
 
   const handleContinueCheckout = (e) => {
     e.preventDefault();
+
+    // Auth guard — open login modal if not logged in
+    if (!user) {
+      setShowLogin(true);
+      return;
+    }
+
     if (!pickupDate || !returnDate) {
       toast.error("Please select both Pickup and Return dates");
       return;
@@ -78,6 +85,7 @@ const Cardetails = () => {
       if (bookedDates.some(booked => isSameDay(booked, currentDate))) {
         toast.error("Selected dates include already booked dates.");
         return;
+
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 const Navbar = () => {
-  const { user, logout, isOwner } = useAppContext();
+  const { user, logout, isOwner, setShowLogin } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -189,7 +189,7 @@ const Navbar = () => {
           ) : (
             /* Logged-Out CTA */
             <button 
-              onClick={() => navigate("/login")} 
+              onClick={() => setShowLogin(true)} 
               className="px-5 py-2 bg-[#3D4C27] hover:bg-[#4C5E31] text-[#FAF7F0] text-xs font-bold rounded-xl transition-all duration-200 shadow-md shadow-[#3D4C27]/30 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               Sign In
