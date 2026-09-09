@@ -1,8 +1,7 @@
-import Review from "../models/Review.js"
+import Review from "../models/Review.js";
 import Car from "../models/Car.js"; 
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken";
-import logger from "../config/logger.js"
+import logger from "../config/logger.js";
+
 
 export const addReview=async(req,res)=>{
     try{
