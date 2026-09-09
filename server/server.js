@@ -51,6 +51,43 @@ app.use((req, res, next) => {
   next();
 });
 
+// Database connection helper with connection reuse for serverless & local
+let dbPromise = null;
+const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) return;
+  if (!dbPromise) {
+    dbPromise = mongoose
+      .connect(process.env.MONGO_URL, {
+        serverSelectionTimeoutMS: 30000,
+      })
+      .then(() => {
+        logger.info("Database.connected");
+        return mongoose.connection;
+      })
+      .catch((error) => {
+        dbPromise = null;
+        logger.error("database.connection_failed", { error: error.message });
+        throw error;
+      });
+  }
+  return dbPromise;
+};
+
+// Middleware to ensure DB connection on every request (critical for serverless lambdas)
+app.use(async (req, res, next) => {
+  // Allow healthcheck root route without blocking if DB is cold
+  if (req.path === '/' && req.method === 'GET') {
+    connectDB().catch(() => {});
+    return res.send("Server is Running");
+  }
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Database connection failed" });
+  }
+});
+
 app.use('/user', apiLimiter, userrouter);
 app.use('/owner', apiLimiter, ownerrouter);
 app.use('/bookings', apiLimiter, bookingrouter);
@@ -59,20 +96,22 @@ app.use('/notifications', apiLimiter, notificationrouter);
 
 app.get('/', (req, res) => res.send("Server is Running"));
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 30000,
-  })
-  .then(() => {
-    logger.info("Database.connected");
-    initCancellationScheduler(5 * 60 * 1000);
-    app.listen(PORT, async () => {
-      logger.info("server.started", { port: PORT });
-      // Verify SMTP after server is up — failure is logged but does NOT crash the app
-      await verifyTransporter();
+// In traditional / local environments (not Vercel serverless), start HTTP listener
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(() => {
+      initCancellationScheduler(5 * 60 * 1000);
+      app.listen(PORT, async () => {
+        logger.info("server.started", { port: PORT });
+        // Verify SMTP after server is up — failure is logged but does NOT crash the app
+        await verifyTransporter();
+      });
+    })
+    .catch((error) => {
+      logger.error("startup.failed", { error: error.message });
+      process.exit(1);
     });
-  })
-  .catch((error) => {
-    logger.error("database.connection_failed", { error: error.message });
-    process.exit(1);
-  });
+}
+
+export default app;
+
